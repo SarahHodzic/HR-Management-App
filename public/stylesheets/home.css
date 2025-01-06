@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  padding: 0;
+}
+
+.custom-hr {
+  width: 50%;
+  margin: 2% auto;
+  border: 1px solid #ccc;
+}
+
+/* Companies Circle Styles */
+
+.companies-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  border: 1px solid grey;
+}
+
+.companies-circle:hover {
+  transform: scale(1.1);
+}
+/* Image styles */
+.companies-circle img {
+  width: 100%;
+  height: auto;
+}
+.carousel-control-prev,
+.carousel-control-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.card {
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.card img {
+  border: 2px solid #ddd;
+}
+
+.badge {
+  font-size: 0.9rem;
+}
+
+.no-events {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ffcc00;
+  border-radius: 10px;
+  background-color: #fff3cd;
+  color: #856404;
+  font-size: 1.2em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-events-icon {
+  font-size: 50px;
+  color: #856404;
+}
+
+.no-events-message {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+
+@media only screen and (max-width: 768px) {
+  #companiesCarousel .col-2 {
+    margin: 0 15px;
+  }
+
+  .companies-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 30px;
+    height: 30px;
+  }
+
+  .company_name{
+    font-size: 15px;
+    margin: 0 15px;
+  }
+
+
+}

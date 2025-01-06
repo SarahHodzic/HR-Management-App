@@ -1,0 +1,491 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  padding: 0;
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto 50px;
+}
+
+.profile-header {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background-color: #d8d8d8;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.profile-header img.cover-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.edit-cover-photo {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(255, 127, 80, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.profile-picture {
+  position: relative;
+  margin-top: -60px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 5px solid white;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.profile-picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-info {
+  text-align: center;
+  margin-top: 10px;
+  padding: 20px;
+}
+
+.profile-info h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.profile-info p {
+  color: rgb(128, 128, 128);
+}
+
+.profile-nav {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+  background-color: white;
+}
+
+.profile-nav a {
+  text-decoration: none;
+  color: #333;
+  padding: 10px 20px;
+}
+
+.profile-nav a:hover {
+  background-color: #f0f0f0;
+}
+
+/* Hidden file input styling */
+input[type="file"] {
+  display: none;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-edit {
+  background-color: rgba(255, 127, 80, 0.7);
+  color: white;
+}
+
+.form-edit:hover {
+  background-color: #FF7F50;
+  color: white;
+}
+
+/*document section*/
+
+.documents-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 10px auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.documents-section h3 {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.5em;
+  color: #333;
+}
+
+#upload-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#upload-form input[type="file"] {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+  font-size: 0.9em;
+}
+
+#upload-form button {
+  background-color: #0073e6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+#upload-form button:hover {
+  background-color: #005bb5;
+}
+
+#document-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#document-list li {
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#document-list li a {
+  text-decoration: none;
+  color: #0073e6;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+#document-list li a:hover {
+  color: #005bb5;
+}
+
+#document-list li button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
+
+#document-list li button:hover {
+  background-color: #c0392b;
+}
+
+#document{
+  display: block;
+}
+
+/* EXPERIENCE SECTION CSS*/
+
+.experience-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  border: 1px dashed #d0d7de;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.experience-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #ff0000;
+}
+
+.experience-subtext {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.experience-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.experience-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f4f8;
+  border-radius: 50%;
+  margin-right: 1rem;
+}
+
+.experience-icon img {
+  width: 24px;
+  height: 24px;
+}
+
+.experience-details {
+  flex-grow: 1;
+}
+
+.job-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.organization,
+.duration {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.add-experience-btn, .add-education-btn {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  color: #0066cc;
+  background-color: #ffffff;
+  border: 1px solid #0066cc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-experience-btn:hover, .add-education-btn:hover {
+  background-color: #0066cc;
+  color: #ffffff;
+}
+
+/*EDUCATION AND SKILL SECTION*/
+
+.education-container,
+.skills-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  border: 1px dashed #d0d7de;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.education-header,
+.skills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.education-actions button,
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #0066cc;
+}
+
+.education-content {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.university-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 1rem;
+}
+
+.university-name {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.education-period {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.skills-list {
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skills-list li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.add-skills-btn,
+.add-btn {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  color: #0066cc;
+  background-color: #ffffff;
+  border: 1px solid #0066cc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-skills-btn:hover,
+.add-btn:hover {
+  background-color: #0066cc;
+  color: #ffffff;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #0066cc;
+}
+
+.edit-btn:hover {
+  color: #004d99;
+}
+
+.disabled {
+  background-color: #f8f9fa;
+  pointer-events: none;
+  color: #6c757d;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.experience-item {
+  position: relative;
+}
+
+.experience-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.experience-actions i {
+  font-size: 16px;
+  color: #007bff;
+  margin-left: 10px;
+  cursor: pointer;
+  transform: scale(0.9);
+}
+
+.experience-actions i:hover {
+  color: #0056b3;
+}
+
+.delete-icon {
+  color: #dc3545;
+}
+
+.delete-icon:hover {
+  color: #c82333;
+}
+
+.update-icon, .update-icon-education {
+  color: #28a745;
+}
+
+.update-icon:hover, .update-icon-education:hover {
+  color: #218838;
+}
+
+.profile-nav .nav-link {
+  color: #333;
+  font-weight: 500;
+  border-radius: 5px;
+}
+
+.profile-nav .nav-link:hover {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.profile-nav .nav-link.active {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+

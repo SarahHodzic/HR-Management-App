@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  padding: 0;
+}
+
+/* navigation */
+
+.logo {
+  font-family: 'Arial', sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  color: #FF7F50;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hrw {
+  background-color: #FF7F50;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+
+.nav-link-signup, .nav-link-admin-panel {
+  background-color: #FFA07A;
+  font-weight: bold;
+  color: white;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+.nav-link-signup:hover {
+  background-color: #FF7F50;
+  color: white;
+  cursor: pointer;
+}
+
+.nav-link-login:hover {
+  cursor:pointer;
+}
+
+
+/* footer */
+
+.footer-custom {
+  background: linear-gradient(135deg, rgba(255, 127, 80, 0.9), rgba(255, 127, 80, 0.2));
+  color: black;
+  padding: 40px 0;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer-custom h5 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.footer-custom p, .footer-custom a {
+  color: black;
+  font-size: 14px;
+}
+
+.footer-custom a:hover {
+  text-decoration: underline;
+}
+
+.social-icon {
+  display: inline-block;
+  margin: 0 10px;
+  transition: transform 0.3s;
+}
+
+.social-icon img {
+  width: 30px;
+  height: 30px;
+}
+
+.social-icon:hover {
+  transform: scale(1.2);
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FF7F50;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.profile-img:hover {
+  transform: scale(1.1);
+}
+
+
+.navbar-collapse {
+  z-index: 1049;
+}

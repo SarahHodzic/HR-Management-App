@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/chat.css'/>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <% if (user.role === 1) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My Job
+                            Postings</a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link" href="/user_profile/<%= user.id %>">
+                                <img src="<%= user_info.profile_picture ? user_info.profile_picture : '/images/default-profile.jfif' %>"
+                                     alt="Profile" class="profile-img">
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container container-whole mt-2 mb-2">
+
+    <!-- Sidebar with user list -->
+    <div class="offcanvas offcanvas-start sidebar" id="contactsSidebar" tabindex="-1" aria-labelledby="contactsSidebarLabel">
+        <div class="offcanvas-header sidebar-header">
+            <h5 class="offcanvas-title" id="contactsSidebarLabel">Contacts</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="user-list" id="userList">
+                <% if(!exists){ %>
+                    <li class="user" onclick="selectUser('<%= new_chat.id %>','<%= new_chat.name %>','<%= new_chat.surname %>')">
+                        <%= new_chat.name %> <%= new_chat.surname %>
+                    </li>
+                <% } %>
+                <% chat_list.forEach(user => { %>
+                    <li class="user" onclick="selectUser('<%= user.id %>','<%= user.name %>','<%= user.surname %>')">
+                        <%= user.name %> <%= user.surname %>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Chat container -->
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header">
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#contactsSidebar" aria-controls="contactsSidebar">
+                ☰ Contacts
+            </button>
+            <h3 id="chat-header-title">Select a user to start chatting</h3>
+        </div>
+
+        <div class="chat-placeholder" id="chat-placeholder">
+            <img src="/images/Chat.png" alt="Start chatting!"/>
+            <p>Select a user to start chatting</p>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+
+        </div>
+        <div class="chat-input ">
+            <input type="text" id="messageInput" placeholder="Type a message..." disabled/>
+            <button onclick="sendMessage()" disabled>Send</button>
+        </div>
+    </div>
+</div>
+
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    const userId = `<%= JSON.stringify(user.id) %>`;
+    let socket = io.connect('ws://localhost:3000')
+    socket.emit('register', userId);
+
+    const userList = document.getElementById('userList');
+    const chatWindow = document.getElementById('chat-container');
+    const chatWith = document.getElementById('chat-header-title');
+    const messagesDiv = document.getElementById('chat-messages');
+    let currentChatUser = null;
+
+    function scrollToBottom() {
+        const chatContainer = document.getElementById('chat-messages');
+        console.log(chatContainer);
+        chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+        console.log()
+    }
+
+    async function selectUser(receiver_id, receiver_name, receiver_surname) {
+
+        const chatPlaceholder = document.getElementById("chat-placeholder");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.querySelector(".chat-input button");
+
+        chatWindow.classList.remove("disabled");
+
+        chatPlaceholder.style.display = "none";
+
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+
+        const chatHeaderTitle = document.getElementById("chat-header-title");
+        chatHeaderTitle.innerText = `Chatting with ${receiver_name} ${receiver_surname}`;
+
+        currentChatUser = {
+            id: receiver_id,
+            name: receiver_name,
+            surname: receiver_surname
+        };
+
+        const response = await fetch(`/chat/chat-history/${receiver_id}/${userId}`);
+        const messages = await response.json();
+
+        messagesDiv.innerHTML = '';
+        messages.forEach((message) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+
+            if (message.sender_id === parseInt(userId)) {
+                messageElement.classList.add('sender');
+                messageElement.textContent = `${message.text}`;
+            } else {
+                messageElement.classList.add('receiver');
+                messageElement.textContent = `${message.text}`;
+            }
+
+            messagesDiv.appendChild(messageElement);
+        });
+        scrollToBottom()
+    }
+
+
+    function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value;
+        if (!message) return;
+
+        socket.emit('chat message', {
+            sender_id: userId,
+            receiver_id: currentChatUser.id,
+            message,
+        });
+
+
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'sender');
+        messageElement.textContent = `${message}`;
+        messagesDiv.appendChild(messageElement);
+
+        messageInput.value = '';
+        scrollToBottom()
+    }
+
+    socket.on('newMessage', (data) => {
+        const {sender_id, message} = data;
+        console.log(currentChatUser.id, currentChatUser.name, currentChatUser.surname);
+        console.log(sender_id);
+        if (currentChatUser.id === sender_id) {
+            console.log(`New message from user ${sender_id}: ${message}`);
+
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'receiver');
+
+            messageElement.textContent = `${message}`;
+            messagesDiv.appendChild(messageElement);
+            scrollToBottom()
+        }
+    });
+
+
+</script>
+
+
+</body>
+</html>

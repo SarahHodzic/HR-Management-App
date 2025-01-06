@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <link rel='stylesheet' href='/stylesheets/individual-job.css'/>
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My
+                                Job
+                                Postings</a>
+                        </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link" href="/user_profile/<%= user.id %>">
+                                <img src="<%= user.profile_picture %>" alt="Profile" class="profile-img">
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 class="mt-4">Edit Job Posting</h2>
+    <form id="job-form" action="/contest/edit-job/<%= job.id %>" method="POST">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="<%= job.title %>" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="4"
+                      required><%= job.description %></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="company_id" class="form-label">Company</label>
+            <select class="form-select" id="company_id" name="company_id" required>
+                <% companies.forEach(company => { %>
+                    <option value="<%= company.id %>" <%= job.company_id === company.id ? 'selected' : '' %>><%= company.name %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="position_id" class="form-label">Position</label>
+            <select class="form-select" id="position_id" name="position_id" required>
+                <% positions.forEach(position => { %>
+                    <option value="<%= position.id %>" <%= job.position_id === position.id ? 'selected' : '' %>><%= position.name %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="location_id" class="form-label">Location</label>
+            <select class="form-select" id="location_id" name="location_id" required>
+                <% locations.forEach(location => { %>
+                    <option value="<%= location.id %>" <%= job.location_id === location.id ? 'selected' : '' %>><%= location.name %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="deadline" class="form-label">Deadline</label>
+            <input type="datetime-local" class="form-control" id="deadline" name="deadline"
+                   value="<%= job.formattedDeadline %>" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <hr class="m-5">
+
+    </form>
+</div>
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    function updateStatus(selectElement) {
+        const jobId = selectElement.getAttribute('data-job-id');
+        const newStatus = selectElement.value;
+
+        fetch(`/contest/update-status/${jobId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({status: newStatus}),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Status updated successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+            });
+    }
+
+
+</script>
+
+
+</body>
+</html>

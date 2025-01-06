@@ -1,0 +1,73 @@
+
+.applied {
+    background-color: #f0f4f8;
+    color: #333333;
+}
+
+.reviewed {
+    background-color: #ffeeba;
+    color: #856404;
+}
+
+.interview {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.shortlisted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.approved {
+    background-color: #c3e6cb;
+    color: #155724;
+}
+
+a{
+    color: black;
+}
+
+[data-toggle="tooltip"] {
+    position: relative;
+    cursor: pointer;
+}
+
+[data-toggle="tooltip"]:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: -25px;
+    left: 0;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    display: block;
+}
+
+textarea {
+    resize: none;
+}
+
+.form-container {
+    margin: 2rem;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.active {
+    opacity: 1;
+    max-height: 100vh;
+    margin-bottom: 100px;
+}
+

@@ -1,0 +1,12 @@
+.card-header {
+    background: #FFA07A;
+    color: white;
+}
+
+.badge {
+    font-size: 1rem;
+}
+
+.status-select {
+    width: 30%;
+}

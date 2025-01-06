@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/home.css'/>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My
+                                Job
+                                Postings</a>
+                        </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link" href="/user_profile/<%= user.id %>">
+                                <img src="<%= profile_picture ? profile_picture : '/images/default-profile.jfif' %>"
+                                     alt="Profile" class="profile-img">
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<% if(user.role === 1){ %>
+    <div class="container d-flex flex-row-reverse bd-highlight">
+        <button class="btn mb-3 mt-3 nav-link-signup" onclick="window.location = '/calendar/<%= user.id %>'"><i
+                    class="bi bi-calendar"></i> Calendar
+        </button>
+        <button class="btn mb-3 mt-3 nav-link-signup" onclick="window.location = '/all_job_postings'"
+                style="margin-right: 1rem;">All job postings
+        </button>
+    </div>
+<% } %>
+
+<!-- Companies Section -->
+<div id="companiesCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <% for (let i = 0; i < companies.length; i += 5) { %>
+            <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+                <div class="row justify-content-center text-center">
+                    <% for (let j = 0; j < 5 && (i + j) < companies.length; j++) { %>
+                        <div class="col-4 col-md-2">
+                            <div class="companies-circle" onclick="filter_company(<%= companies[i + j].id %>)">
+                                <img src="<%= companies[i + j].image %>" alt="Company Image">
+                            </div>
+                            <h5><%= companies[i + j].name %></h5>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#companiesCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#companiesCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+
+<hr class="custom-hr">
+
+<div class="container my-4">
+    <!-- Filter, Sort -->
+    <div class="container m-4">
+        <div class="row align-items-center" style="margin-left:3%;">
+            <div class="col-auto m-1">
+                <label for="filtering" class="form-label mb-0">Filter by:</label>
+            </div>
+            <div class="col-auto m-1">
+                <select id="filtering" class="form-select" onchange="filter(this.value)" style="width: 200px;">
+                    <option selected value="0">All</option>
+                    <% positions.forEach(position => { %>
+                        <option value="<%= position.id %>"><%= position.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <label for="sort" class="form-label mb-0">Sort by:</label>
+            </div>
+            <div class="col-auto">
+                <select id="sort" class="form-select" onchange="sort(this.value)" style="width: 200px;">
+                    <option selected value="1">Deadline Descending</option>
+                    <option value="2">Deadline Ascending</option>
+                    <option value="3">Created At Descending</option>
+                    <option value="4">Created At Ascending</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-4" id="jobsHtml">
+
+    <% if (jobs.length === 0) { %>
+        <div class="no-events text-center">
+            <i class="bi bi-exclamation-circle no-events-icon"></i>
+            <p class="no-events-message">No job postings found</p>
+        </div>
+
+    <% }
+    else {
+    %>
+        <% jobs.forEach(job => { %>
+            <div class="card mb-3 p-3 shadow-sm" onclick="location.href='/individual-job-posting/<%= job.id %>'">
+                <div class="row g-0 align-items-center">
+
+                    <div class="col-md-2 d-flex justify-content-center align-items-center">
+                        <img
+                                src="<%= job.company_image %>"
+                                alt="Company Logo"
+                                class="img-fluid rounded-circle"
+                                style="width: 100px; height: 100px; object-fit: cover;"
+                        />
+                    </div>
+
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1"><span class="text-primary"><%= job.title %></span></h5>
+                            <p class="mb-1">
+                                <i class="bi bi-person"></i> <strong><%= job.position_name %></strong>
+                            </p>
+                            <p class="mb-1"><strong><%= job.company_name %></strong></p>
+                            <p class="mb-1">
+                                <i class="bi bi-geo-alt-fill text-danger"></i> <%= job.location_name %>
+                            </p>
+                            <p class="mb-1">
+                                <i class="bi bi-calendar-event text-success"></i> <%= job.formattedDateDeadline %> <%= job.formattedTimeDeadline %>
+                            </p>
+                            <p class="mb-0">
+            <span class="badge <%= job.status === 1 ? 'bg-success' : 'bg-secondary' %>">
+              <%= job.status === 1 ? 'Active' : 'Archived' %>
+            </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <% })} %>
+</div>
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    const userId = `<%= JSON.stringify(user.id) %>`;
+
+    function filter(selectedValue) {
+        console.log("SELECTED VALUE: ", selectedValue);
+        let jobsHtml = '';
+        $.ajax({
+            url: `/filter/${selectedValue}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        jobsHtml = `
+                        <div class="no-events text-center">
+                            <i class="bi bi-exclamation-circle no-events-icon"></i>
+                            <p class="no-events-message">No job postings found</p>
+                        </div>
+                    `
+                    } else {
+
+                        (response.data).forEach(job => {
+                            jobsHtml += `<div class="card mb-3 p-3 shadow-sm" onclick="location.href='/individual-job-posting/${job.id}'">
+              <div class="row g-0 align-items-center">
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                  <img
+                          src="${job.company_image}"
+                          alt="Company Logo"
+                          class="img-fluid rounded-circle"
+                          style="width: 100px; height: 100px; object-fit: cover;"
+                  />
+                </div>
+                <div class="col-md-10">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><span class="text-primary">${job.title}</span></h5>
+
+                    <p class="mb-1">
+                        <i class="bi bi-person"></i> <strong>${job.position_name}</strong>
+                    </p>
+                    <p class="mb-1"><strong>${job.company_name}</strong></p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-geo-alt-fill text-danger"></i>${job.location_name}
+                    </p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-calendar-event text-success"></i> ${job.formattedDateDeadline} ${job.formattedTimeDeadline}
+                    </p>
+
+                    <p class="mb-0">
+            <span class="badge ${job.status === 1 ? 'bg-success' : 'bg-secondary'}">
+              ${job.status === 1 ? 'Active' : 'Archived'}
+            </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>`
+                        })
+                    }
+                    $("#jobsHtml").html(jobsHtml);
+                }
+            },
+            error: function () {
+                console.log("Error while filtering data ")
+            }
+
+        })
+    }
+
+    function sort(selectedValue) {
+        console.log("SELECTED VALUE SORT: ", selectedValue);
+        let jobsHtml = '';
+        $.ajax({
+            url: `/sort/${selectedValue}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        jobsHtml = `
+                        <div class="no-events text-center">
+                            <i class="bi bi-exclamation-circle no-events-icon"></i>
+                            <p class="no-events-message">No events found</p>
+                        </div>
+                    `
+                    } else {
+
+                        (response.data).forEach(job => {
+                            jobsHtml += `<div class="card mb-3 p-3 shadow-sm" onclick="location.href='/individual-job-posting/${job.id}'">
+              <div class="row g-0 align-items-center">
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                  <img
+                          src="${job.company_image}"
+                          alt="Company Logo"
+                          class="img-fluid rounded-circle"
+                          style="width: 100px; height: 100px; object-fit: cover;"
+                  />
+                </div>
+                <div class="col-md-10">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><span class="text-primary">${job.title}</span></h5>
+
+                    <p class="mb-1">
+                        <i class="bi bi-person"></i> <strong>${job.position_name}</strong>
+                    </p>
+
+                    <p class="mb-1"><strong>${job.company_name}</strong></p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-geo-alt-fill text-danger"></i>${job.location_name}
+                    </p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-calendar-event text-success"></i> ${job.formattedDateDeadline} ${job.formattedTimeDeadline}
+                    </p>
+
+                    <p class="mb-0">
+            <span class="badge ${job.status === 1 ? 'bg-success' : 'bg-secondary'}">
+              ${job.status === 1 ? 'Active' : 'Archived'}
+            </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>`
+                        })
+                    }
+                    $("#jobsHtml").html(jobsHtml);
+                }
+            },
+            error: function () {
+                console.log("Error while sorting data ")
+            }
+
+        })
+    }
+
+
+    function filter_company(selectedValue) {
+        console.log("SELECTED VALUE: ", selectedValue);
+        let jobsHtml = '';
+        $.ajax({
+            url: `/filter_company/${selectedValue}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        jobsHtml = `
+                        <div class="no-events text-center">
+                            <i class="bi bi-exclamation-circle no-events-icon"></i>
+                            <p class="no-events-message">No job postings found</p>
+                        </div>
+                    `
+                    } else {
+
+                        (response.data).forEach(job => {
+                            jobsHtml += `<div class="card mb-3 p-3 shadow-sm" onclick="location.href='/individual-job-posting/${job.id}'">
+              <div class="row g-0 align-items-center">
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                  <img
+                          src="${job.company_image}"
+                          alt="Company Logo"
+                          class="img-fluid rounded-circle"
+                          style="width: 100px; height: 100px; object-fit: cover;"
+                  />
+                </div>
+                <div class="col-md-10">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><span class="text-primary">${job.title}</span></h5>
+
+                    <p class="mb-1">
+                        <i class="bi bi-person"></i> <strong>${job.position_name}</strong>
+                    </p>
+                    <p class="mb-1"><strong>${job.company_name}</strong></p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-geo-alt-fill text-danger"></i>${job.location_name}
+                    </p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-calendar-event text-success"></i> ${job.formattedDateDeadline} ${job.formattedTimeDeadline}
+                    </p>
+
+                    <p class="mb-0">
+            <span class="badge ${job.status === 1 ? 'bg-success' : 'bg-secondary'}">
+              ${job.status === 1 ? 'Active' : 'Archived'}
+            </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>`
+                        })
+                    }
+                    $("#jobsHtml").html(jobsHtml);
+                }
+            },
+            error: function () {
+                console.log("Error while filtering data ")
+            }
+
+        })
+    }
+
+    function adjustCarouselItems() {
+        const mediaQuery = window.matchMedia("(max-width: 768px)");
+        const carouselInner = document.querySelector("#companiesCarousel .carousel-inner");
+        const items = carouselInner.querySelectorAll(".carousel-item");
+
+        items.forEach(item => {
+            const cols = item.querySelectorAll(".col-2");
+
+            if (mediaQuery.matches) {
+                cols.forEach((col, index) => {
+                    col.style.display = index < 3 ? "block" : "none";
+                });
+            } else {
+                cols.forEach(col => {
+                    col.style.display = "block";
+                });
+            }
+        });
+    }
+
+    adjustCarouselItems();
+    window.addEventListener("resize", adjustCarouselItems);
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <link rel='stylesheet' href='/stylesheets/my-job-postings.css'/>
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+<hr class="custom-hr">
+<h4 class="m-5 custom-title">My Job Postings</h4>
+<div class="container mt-4">
+    <div class="row">
+        <% jobs.forEach(job => { %>
+            <div class="col-md-4 mb-4">
+                <div class="card" style="width: 100%;"
+                     onclick="location.href='/contest/individual-job-posting/<%= job.id %>'">
+                    <div class="status-indicator <%= job.status === 1 ? 'status-active' : 'status-inactive' %>">
+                        <%= job.status_name %>
+                    </div>
+                    <img
+                            class="card-img-top img-fluid"
+                            src="<%= job.company_image %>"
+                            alt="Company image"
+                            style="height: 150px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= job.title %></h5>
+                        <p class="card-text"><%= job.position_name %></p>
+                        <p class="card-text"><%= job.company_name %></p>
+                        <div class="d-flex justify-content-between">
+                            <p class="card-text date"><%= job.formattedDate %> <%= job.formattedTime %></p>
+                            <p class="card-text date"><%= job.location_name %> <i class="bi bi-geo-alt-fill"></i></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+
+</script>
+
+
+</body>
+</html>

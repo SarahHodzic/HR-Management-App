@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-tabledit@1.6.0/jquery.tabledit.min.css">
+    <link rel='stylesheet' href='/stylesheets/candidates.css'/>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My Job
+                            Postings</a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h3 class="text-center m-4">Ratings and Reviews for Applicants</h3>
+    <br/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="sample_data" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Application ID</th>
+
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Experience</th>
+                        <th>Education</th>
+                        <th>Technical Skills</th>
+                        <th>Soft Skills</th>
+                        <th>Motivation</th>
+                        <th>Testing</th>
+                        <th>Overall Score</th>
+                        <th>Comment</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% applications.forEach(application => { %>
+                        <tr id="row-<%= application.application_id %>">
+                            <td><%= application.application_id %></td>
+                            <td>
+                                <%= application.user_id %>
+                            </td>
+                            <td>
+                                <%= application.user_name %>
+                            </td>
+                            <td><%= application.user_surname %></td>
+                            <td><%= application.experience %></td>
+                            <td><%= application.education %></td>
+                            <td><%= application.technical_skills %></td>
+                            <td><%= application.soft_skills %></td>
+                            <td><%= application.motivation %></td>
+                            <td><%= application.testing %></td>
+                            <td class="overall-score">
+                                <%= application.average_score %>
+                            </td>
+                            <td>
+                                <%= application.comment %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br/>
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="https://markcell.github.io/jquery-tabledit/assets/js/tabledit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-tabledit@1.6.0/jquery.tabledit.min.js"></script>
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+
+    $(document).ready(function () {
+
+
+        $('#sample_data').DataTable();
+
+        $('#sample_data').Tabledit({
+            url: `/candidates/edit`,
+            editButton: true,
+            deleteButton: false,
+            hideIdentifier: true,
+            columns: {
+                identifier: [0, 'application_id'],
+                editable: [
+                    [4, 'experience'],
+                    [5, 'education'],
+                    [6, 'technical_skills'],
+                    [7, 'soft_skills'],
+                    [8, 'motivation'],
+                    [9, 'testing'],
+                    [11, 'comment']
+                ]
+            },
+            onDraw: function () {
+                $('.tabledit-input').on('input', function () {
+                    let value = $(this).val().trim();
+                    if (value && (parseInt(value) < 0 || parseInt(value) > 10)) {
+                        $(this).val('');
+                    }
+                });
+
+                $('.tabledit-edit-button').each(function () {
+                    if ($(this).hasClass('tabledit-edit-button')) {
+                        $(this).html('<i class="fa fa-pencil-alt"></i> Edit');
+                    }
+                    if ($(this).hasClass('tabledit-delete-button')) {
+                        $(this).html('<i class="fa fa-trash"></i> Delete');
+                    }
+                });
+
+                $('input.tabledit-input').each(function () {
+                    const columnName = $(this).attr('name');
+
+                    if (['experience', 'technical_skills', 'soft_skills', 'motivation', 'testing', 'education'].includes(columnName)) {
+                        $(this).attr('type', 'number');
+                        $(this).attr('min', 0);
+                        $(this).attr('max', 10);
+
+                        let value = $(this).val().trim();
+                        $(this).val(parseInt(value));
+                        console.log(`Okay values ${columnName} ${$(this).val()}`)
+                    } else if (['comment'].includes(columnName)) {
+                        $(this).attr('type', 'text');
+                        let value = $(this).val().trim();
+                        $(this).val(value);
+                    }
+                });
+            },
+            onSuccess: function (response) {
+                console.log('Update success', response);
+                if (response.status) {
+                    let rowId = response.application_id;
+                    let newScore = response.data;
+                    console.log("ROW ID", rowId)
+                    console.log("NEW SCORE", newScore)
+                    console.log($(`#row-${rowId}`).length);
+                    let row = $(`#sample_data tbody tr`).filter(function () {
+                        return $(this).find('td:first').text().trim() === rowId.toString();
+                    });
+
+                    if (row.length > 0) {
+                        row.find('td.overall-score').text(newScore);
+                        console.log('Score updated successfully!');
+                    } else {
+                        console.error('Row not found for ID:', rowId);
+                    }
+                }
+            },
+            onFail: function (jqXHR, textStatus, errorThrown) {
+                console.log('Update failed', textStatus, errorThrown);
+            }
+        });
+    });
+
+
+</script>
+
+
+</body>
+</html>

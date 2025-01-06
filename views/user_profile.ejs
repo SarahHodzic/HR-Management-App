@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/user_profile.css'/>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title><%= user.name %> <%= user.surname %> | <%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!userId) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (userRole === 1) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                        </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (userRole === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!-- Profile Container -->
+<div class="profile-container" id="profile">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <img src="<%= backgroundPicture %>" alt="Cover Photo" class="cover-photo">
+        <% if(userId === user.id && userId){ %>
+            <label for="cover-photo-upload" class="edit-cover-photo">Edit Cover Photo</label>
+            <input type="file" id="cover-photo-upload" onchange="changeCoverPhoto(event)">
+        <% } %>
+    </div>
+
+    <!-- Profile Picture -->
+    <div class="profile-picture"
+    <% if(userId === user.id && userId){ %>
+         onclick="document.getElementById('profile-photo-upload').click();"
+    <% } else { %>
+         style="cursor: default"
+            <% } %>
+    >
+        <img src="<%= profilePicture ? profilePicture : '/images/default-profile.jfif' %>" alt="Profile Picture">
+        <input type="file" id="profile-photo-upload" onchange="changeProfilePhoto(event)">
+    </div>
+
+    <!-- Profile Info -->
+    <div class="container profile-info">
+        <div class="row align-items-center">
+            <div class="col d-flex justify-content-center position-relative">
+                <h1 class="text-center"><%= user.name %> <%= user.surname %></h1>
+                <% if(userId === user.id && userId){ %>
+                    <button type="button" class="btn btn-success position-absolute end-0" data-bs-toggle="modal"
+                            data-bs-target=".edit-profile">
+                        <i class="bi bi-pencil-square"></i> Edit profile
+                    </button>
+                <% } %>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p><%= user.description %></p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container px-5">
+        <!-- Profile navigation -->
+        <nav class="profile-nav nav nav-pills flex-column flex-sm-row justify-content-center my-4">
+            <a href="#reviews" class="nav-link">Reviews</a>
+            <a href="#document-section" class="nav-link">Documents</a>
+            <a href="#experience" class="nav-link">Experience</a>
+            <a href="#education" class="nav-link">Education</a>
+        </nav>
+    </div>
+
+
+
+    <!-- Edit profile dialog with form -->
+    <div class="modal fade edit-profile" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="/user_profile/edit-profile/<%= userId %>" method="POST">
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Email address</label>
+                            <input type="email" class="form-control" id="exampleInputEmail1"
+                                   aria-describedby="emailHelp" value="<%= email %>" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1"
+                                   placeholder="Password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputNameCat">Name</label>
+                            <input type="text" class="form-control" id="exampleInputNameCat" value="<%= name %>"
+                                   name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputSurname">Surname</label>
+                            <input type="text" class="form-control" id="exampleInputSurname" value="<%= surname %>"
+                                   name="surname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPhone">Phone</label>
+                            <input type="text" class="form-control" id="exampleInputPhone" value="<%= user.phone %>"
+                                   name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputDescription">Description</label>
+                            <input type="text" class="form-control" id="exampleInputDescription"
+                                   value="<%= user.description %>" name="description" required>
+                        </div>
+
+                        <button type="submit" class="btn form-edit">Submit</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENTS SECTION -->
+    <div class="documents-section" id="document-section">
+        <h3>Documents</h3>
+        <% if(userId === user.id && userId){ %>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="file" name="document" id="document" accept=".pdf,.doc,.docx,.jpg,.png"/>
+                <button type="submit">Upload Document</button>
+            </form>
+        <% } %>
+
+        <ul id="document-list">
+            <% documents.forEach(document => { %>
+                <li>
+                    <a href="<%= document.document %>" target="_blank" ;>
+                        <%= document.file_name %>
+                    </a>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+
+    <!-- EXPERIENCE SECTION -->
+    <div class="experience-container" id="experience">
+        <div class="experience-header">
+            <h2>Experience</h2>
+        </div>
+        <% if(userId === user.id && userId){ %>
+            <p class="experience-subtext">
+                Add details about your experience to make your profile stand out to potential employers
+            </p>
+        <% } %>
+
+        <% if (experience.length === 0){ %>
+            <% if(userId === user.id && userId){ %>
+                <div class="experience-item">
+                    <div class="experience-icon">
+                        <img src="/images/briefcase-1024.png" alt="Briefcase Icon">
+                    </div>
+                    <div class="experience-details">
+                        <h3 class="job-title">Job Title</h3>
+                        <p class="organization">Organization</p>
+                        <p class="duration">2023 - present</p>
+                    </div>
+                </div>
+            <% } %>
+        <% } else { %>
+            <% experience.forEach(exp => { %>
+                <div class="experience-item" id="experience-<%= exp.id %>">
+                    <div class="experience-icon">
+                        <img src="/images/briefcase-1024.png" alt="Briefcase Icon">
+                    </div>
+                    <div class="experience-details">
+                        <h3 class="job-title"><%= exp.title %></h3>
+                        <p class="organization"><%= exp.company_name %> - <%= exp.employment_name %></p>
+                        <p class="duration"><%= exp.start_month %> <%= exp.start_year %> -
+                            <% if(!exp.end_month && !exp.end_year){ %>
+                                present
+                            <% } else{ %>
+                                <%= exp.end_month %> <%= exp.end_year %>
+                            <% } %>
+                        </p>
+                        <!-- Delete and Update buttons -->
+                        <% if(userId === user.id && userId){ %>
+                            <div class="experience-actions">
+                                <i class="fas fa-pen update-icon" data-bs-toggle="modal"
+                                   data-bs-target="#update-experience"
+                                   data-id="<%= exp.id %>"></i>
+                                <i class="fas fa-trash delete-icon" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                   data-id="<%= exp.id %>"></i>
+                            </div>
+                        <% } %>
+                    </div>
+
+
+                </div>
+        <% }) } %>
+        <% if(userId === user.id && userId){ %>
+            <button class="add-experience-btn" data-bs-toggle="modal" data-bs-target=".add-experience">Add experience
+            </button>
+        <% } %>
+    </div>
+
+
+    <!-- Education Section -->
+    <div class="education-container" id="education">
+        <div class="education-header">
+            <h2>Education</h2>
+        </div>
+        <% education.forEach(ed => { %>
+            <div class="experience-item" id="education-<%= ed.id %>">
+                <div class="experience-icon">
+                    <img src="/images/default-education.png" alt="Education icon">
+                </div>
+                <div class="experience-details">
+                    <h3 class="job-title"><%= ed.school %></h3>
+                    <p class="duration"><%= ed.start_year %> -
+                        <% if(!ed.end_year){ %>
+                            present
+                        <% } else{ %>
+                            <%= ed.end_year %>
+                        <% } %>
+                    </p>
+                    <!-- Delete and Update buttons -->
+                    <% if(userId === user.id && userId){ %>
+                        <div class="experience-actions">
+                            <i class="fas fa-pen update-icon-education" data-bs-toggle="modal"
+                               data-bs-target="#update-education" data-id="<%= ed.id %>"></i>
+                            <i class="fas fa-trash delete-icon" data-bs-toggle="modal"
+                               data-bs-target="#deleteModalEducation" data-id="<%= ed.id %>"></i>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        <% }) %>
+        <% if(userId === user.id && userId){ %>
+            <button class="add-education-btn" data-bs-toggle="modal" data-bs-target=".add-education">Add education
+            </button>
+        <% } %>
+    </div>
+
+    <!-- Skills Section -->
+    <div class="skills-container">
+        <div class="skills-header">
+            <h2>Skills</h2>
+        </div>
+        <% if(userId === user.id && userId){ %>
+            <p>Showcase your skills to stand out – highlight your strengths and expertise</p>
+            <ul class="skills-list">
+                <li>Soft skills</li>
+                <li>Technical skills</li>
+            </ul>
+        <% } %>
+        <% skills.forEach(skill => { %>
+            <div class="experience-item" id="skill-<%= skill.id %>">
+                <div class="experience-details">
+                    <h3 class="job-title"><%= skill.name %></h3>
+                    <hr>
+                    <!-- Delete and Update buttons -->
+                    <% if(userId === user.id && userId){ %>
+                        <div class="experience-actions">
+                            <i class="fas fa-pen update-icon-skill" data-bs-toggle="modal"
+                               data-bs-target="#update-skill" data-id="<%= skill.id %>"></i>
+                            <i class="fas fa-trash delete-icon" data-bs-toggle="modal"
+                               data-bs-target="#deleteModalSkill" data-id="<%= skill.id %>"></i>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        <% }) %>
+        <% if(userId === user.id && userId){ %>
+            <button class="add-skills-btn" data-bs-toggle="modal" data-bs-target=".add-skill">Add skills</button>
+        <% } %>
+    </div>
+
+
+    <!-- Comment Section -->
+    <div class="container mt-5 mb-5" id="reviews">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Candidate Ratings & Reviews</h5>
+
+                <!-- Display Average Rating -->
+                <div class="d-flex align-items-center mb-4">
+                    <h6 class="me-2">Average Rating:</h6>
+                    <% if (average_rating !== undefined) { %>
+                        <span class="badge bg-warning text-dark" id="averageRating"><%= average_rating %></span>
+                    <% } else { %>
+                        <span class="badge bg-warning text-dark" id="averageRating"></span>
+                    <% } %>
+                </div>
+
+                <!-- User Rating and Comment Form -->
+                <% if (typeof userId !== 'undefined' && userRole === 1) { %>
+                    <form id="ratingForm" data-id="<%= userId %>" data-id2="<%= user.id %>">
+                        <div class="mb-3">
+                            <label for="userRating" class="form-label">Your Rating:</label>
+                            <select id="userRating" class="form-select" required>
+                                <option value="" disabled selected>Select Rating</option>
+                                <option value="1">1 - Poor</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="3">3 - Good</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="5">5 - Excellent</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userComment" class="form-label">Your Review:</label>
+                            <textarea id="userComment" class="form-control" rows="3" placeholder="Write your comment..."
+                                      required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-outline-success">Submit Rating</button>
+                    </form>
+                <% } %>
+
+                <!-- Comments List -->
+
+                <div id="commentsSection" class="mt-4">
+                    <h6>Reviews</h6>
+
+                    <% review.forEach(review =>{ %>
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <p class="mb-1"><strong><%= review.name %> <%= review.surname %></strong>
+                                    <span class="text-warning">
+                                        <%
+                                            let rating = review.rating
+                                        for(let i = 0; i < 5; i++){
+                                        if(rating === 0){ %>
+                                            ☆
+                                        <%
+                                        }
+                                        else{ %>
+                                            ★
+                                        <%
+                                            rating--
+                                        }
+                                        }
+                                        %>
+                                    </span></p>
+                                <p class="mb-0"><%= review.feedback %></p>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<!-- Add experience dialog from -->
+<div class="modal fade add-experience" id="add-experience" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add experience</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addExperienceForm" action="/user_profile/add-experience/<%= userId %>" method="POST">
+                    <div class="form-group">
+                        <label for="exampleInputTitle">Title*</label>
+                        <input type="text" class="form-control" id="exampleInputTitle" name="title"
+                               placeholder="Ex: Retail Sales Manager" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmploymentType">Employment type</label>
+                        <select id="exampleInputEmploymentType" name="employment_type" class="form-select">
+                            <option selected value="" disabled>Please select</option>
+                            <option value="1">Full-time</option>
+                            <option value="2">Part-time</option>
+                            <option value="3">Self-employed</option>
+                            <option value="4">Freelance</option>
+                            <option value="5">Contract</option>
+                            <option value="6">Internship</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputCompanyName">Company name*</label>
+                        <input type="text" class="form-control" id="exampleInputCompanyName" name="company_name"
+                               placeholder="Ex: Microsoft" required>
+                    </div>
+                    <!-- Checkbox -->
+                    <div class="form-group inline">
+                        <input type="checkbox" id="currentRoleCheckbox" name="currentRole" onclick="toggleEndDate()"/>
+                        <label for="currentRoleCheckbox">I am currently working in this role</label>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="form-group">
+                        <label for="startDate">Start date*</label>
+                        <div class="inline">
+                            <select id="startDate" name="start_month" required>
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="yearSelect"></label>
+                            <select id="yearSelect" name="start_year" required>
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="form-group">
+                        <label for="endMonth">End date*</label>
+                        <div class="inline">
+                            <select id="endMonth" name="end_month" required>
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="endYear"></label>
+                            <select id="endYear" name="end_year" required>
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn form-edit">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete experience modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabelExperience" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabelExperience">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this post?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger delete-btn" id="confirmDelete">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Update experience modal form-->
+<div class="modal update-experience fade" id="update-experience" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit experience</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editExperienceForm">
+                    <div class="form-group">
+                        <label for="exampleEditTitle">Title*</label>
+                        <input type="text" class="form-control" id="exampleEditTitle" name="title"
+                               placeholder="Ex: Retail Sales Manager" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleEditEmploymentType">Employment type</label>
+                        <select id="exampleEditEmploymentType" name="employment_type" class="form-select">
+                            <option selected value="" disabled>Please select</option>
+                            <option value="1">Full-time</option>
+                            <option value="2">Part-time</option>
+                            <option value="3">Self-employed</option>
+                            <option value="4">Freelance</option>
+                            <option value="5">Contract</option>
+                            <option value="6">Internship</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleEditCompanyName">Company name*</label>
+                        <input type="text" class="form-control" id="exampleEditCompanyName" name="company_name"
+                               placeholder="Ex: Microsoft" required>
+                    </div>
+                    <!-- Checkbox -->
+                    <div class="form-group inline">
+                        <input type="checkbox" id="currentRoleCheckboxEdit" name="currentRole"
+                               onclick="toggleEndDate()"/>
+                        <label for="currentRoleCheckboxEdit">I am currently working in this role</label>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="form-group">
+                        <label for="startDateEdit">Start date*</label>
+                        <div class="inline">
+                            <select id="startDateEdit" name="start_month" required>
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="yearSelectEdit"></label>
+                            <select id="yearSelectEdit" name="start_year" required>
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="form-group">
+                        <label for="endMonthEdit">End date*</label>
+                        <div class="inline">
+                            <select id="endMonthEdit" name="end_month" required>
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="endYearEdit"></label>
+                            <select id="endYearEdit" name="end_year" required>
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn form-edit" id="edit-submit-btn" data-id="">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add education modal -->
+<div class="modal fade add-education" id="add-education" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add education</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addEducationForm">
+                    <div class="form-group">
+                        <label for="exampleInputSchool">School*</label>
+                        <input type="text" class="form-control" id="exampleInputSchool" name="school"
+                               placeholder="Ex: Boston University" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputDegree">Degree</label>
+                        <input type="text" class="form-control" id="exampleInputDegree" name="degree"
+                               placeholder="Ex: Bachelor's">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputFieldOfStudy">Field of study</label>
+                        <input type="text" class="form-control" id="exampleInputFieldOfStudy" name="field_of_study"
+                               placeholder="Ex: Business">
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="form-group">
+                        <label for="startDateEducation">Start date*</label>
+                        <div class="inline">
+                            <select id="startDateEducation" name="start_month" required>
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="yearSelectEducation"></label>
+                            <select id="yearSelectEducation" name="start_year" required>
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="form-group">
+                        <label for="endMonthEducation">End date(or expected)</label>
+                        <div class="inline">
+                            <select id="endMonthEducation" name="end_month">
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="endYearEducation"></label>
+                            <select id="endYearEducation" name="end_year">
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn form-edit">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete education modal -->
+<div class="modal fade" id="deleteModalEducation" tabindex="-1" aria-labelledby="deleteModalLabelEducation"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabelEducation">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this post?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger delete-btn" id="confirmDeleteEducation">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update education modal -->
+<div class="modal fade update-education" id="update-education" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit education</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="EditEducationForm">
+                    <div class="form-group">
+                        <label for="exampleEditSchool">School*</label>
+                        <input type="text" class="form-control" id="exampleEditSchool" name="school" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleEditDegree">Degree</label>
+                        <input type="text" class="form-control" id="exampleEditDegree" name="degree">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleEditFieldOfStudy">Field of study</label>
+                        <input type="text" class="form-control" id="exampleEditFieldOfStudy" name="field_of_study">
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="form-group">
+                        <label for="startDateEducationEdit">Start date*</label>
+                        <div class="inline">
+                            <select id="startDateEducationEdit" name="start_month" required>
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="yearSelectEducationEdit"></label>
+                            <select id="yearSelectEducationEdit" name="start_year" required>
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="form-group">
+                        <label for="endMonthEducationEdit">End date(or expected)</label>
+                        <div class="inline">
+                            <select id="endMonthEducationEdit" name="end_month">
+                                <option value="" selected disabled>Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+
+                            <label for="endYearEducationEdit"></label>
+                            <select id="endYearEducationEdit" name="end_year">
+                                <option value="" selected disabled>Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn form-edit" id="edit-submit-btn-education" data-id="">Submit
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add skills dialog from -->
+<div class="modal fade add-skill" id="add-skill" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addSkillForm">
+                    <div class="form-group">
+                        <label for="exampleInputSkill">Skill*</label>
+                        <input type="text" class="form-control" id="exampleInputSkill" name="skill"
+                               placeholder="Ex: Communication" required>
+                    </div>
+                    <button type="submit" class="btn form-edit">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete skill modal -->
+<div class="modal fade" id="deleteModalSkill" tabindex="-1" aria-labelledby="deleteModalLabelSkill" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabelSkill">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this skill?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger delete-btn" id="confirmDeleteSkill">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- update skills dialog from -->
+<div class="modal fade update-skill" id="update-skill" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editSkillForm">
+                    <div class="form-group">
+                        <label for="exampleEditSkill">Skill*</label>
+                        <input type="text" class="form-control" id="exampleEditSkill" name="skill" required>
+                    </div>
+                    <button type="submit" class="btn form-edit" id="edit-submit-btn-skill" data-id="">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Toast for notifications -->
+<div class="toast position-fixed top-0 end-0 p-3 mt-3 me-3" id="toastNotification" role="alert" aria-live="assertive"
+     aria-atomic="true">
+    <div class="toast-header">
+        <strong class="me-auto">Notification</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+        Post deleted successfully!
+    </div>
+</div>
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div id="experienceData" data-experience='<%= JSON.stringify(experience) %>'></div>
+<div id="educationData" data-education='<%= JSON.stringify(education) %>'></div>
+<div id="skillData" data-skill='<%= JSON.stringify(skills) %>'></div>
+
+<script>
+
+    let skills;
+    let educations;
+    let experiences;
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    function changeProfilePhoto(event) {
+        const file = event.target.files[0];
+        console.log("file", file)
+        if (file) {
+            const formData = new FormData();
+            formData.append('profilePhoto', file);
+
+            const userId = `<%= userId %>`;
+            console.log(userId);
+            const numericUserId = Number(userId);
+            console.log(numericUserId);
+
+            fetch(`/user_profile/profile-photo/${numericUserId}`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data.message) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.querySelector('.profile-picture img').src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert("Failed to upload image.");
+                    }
+                })
+                .catch(err => console.log("Error uploading image: ", err));
+        }
+    }
+
+
+    function changeCoverPhoto(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('coverPhoto', file);
+
+            const userId = `<%= userId %>`;
+            console.log(userId);
+            const numericUserId = Number(userId);
+            console.log(numericUserId);
+
+            fetch(`/user_profile/cover-photo/${numericUserId}`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data.message) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.querySelector('.cover-photo').src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert("Failed to upload image.");
+                    }
+                })
+                .catch(err => console.log("Error uploading image: ", err));
+        }
+    }
+
+    const form = document.getElementById("upload-form");
+    const documentList = document.getElementById("document-list");
+
+    if (form) {
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const userId = `<%= userId %>`;
+            const formData = new FormData(form);
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
+            }
+
+            fetch(`/user_profile/upload/${userId}`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const listItem = document.createElement("li");
+                        const link = document.createElement("a");
+                        link.href = data.fileUrl;
+                        link.target = "_blank";
+                        link.textContent = data.fileName;
+                        listItem.appendChild(link);
+                        documentList.appendChild(listItem);
+                        form.reset();
+                    } else {
+                        console.log("Upload failed!")
+                    }
+                })
+                .catch(error => {
+                    console.log("Error uploading file", error);
+                });
+        });
+    }
+
+
+    function toggleEndDate() {
+        const isChecked = document.getElementById('currentRoleCheckbox').checked;
+        const endMonth = document.getElementById('endMonth');
+        const endYear = document.getElementById('endYear');
+        const isCheckedEdit = document.getElementById('currentRoleCheckboxEdit').checked;
+        const endMonthEdit = document.getElementById('endMonthEdit');
+        const endYearEdit = document.getElementById('endYearEdit');
+
+        console.log("IS CHECKED EDIT", isCheckedEdit);
+        console.log("IS CHECKED INSERT", isChecked);
+
+        if (isChecked) {
+            endMonth.classList.add('disabled');
+            endYear.classList.add('disabled');
+            endMonth.disabled = true;
+            endYear.disabled = true;
+            endMonth.selectedIndex = 0;
+            endYear.selectedIndex = 0;
+        } else {
+            endMonth.classList.remove('disabled');
+            endYear.classList.remove('disabled');
+            endMonth.disabled = false;
+            endYear.disabled = false;
+        }
+
+        if (isCheckedEdit) {
+            endMonthEdit.classList.add('disabled');
+            endYearEdit.classList.add('disabled');
+            endMonthEdit.disabled = true;
+            endYearEdit.disabled = true;
+            endMonthEdit.selectedIndex = 0;
+            endYearEdit.selectedIndex = 0;
+        } else {
+            endMonthEdit.classList.remove('disabled');
+            endYearEdit.classList.remove('disabled');
+            endMonthEdit.disabled = false;
+            endYearEdit.disabled = false;
+        }
+    }
+
+    function generateYearOptions(startYear, endYear) {
+        const yearSelect = document.getElementById('yearSelect');
+        const yearSelect1 = document.getElementById('endYear');
+        const startYearEdit = document.getElementById('yearSelectEdit');
+        const endYearEdit = document.getElementById('endYearEdit');
+        const startYearEducation = document.getElementById('yearSelectEducation');
+        const endYearEducation = document.getElementById('endYearEducation');
+        const startYearEducationEdit = document.getElementById('yearSelectEducationEdit');
+        const endYearEducationEdit = document.getElementById('endYearEducationEdit');
+
+        for (let year = startYear; year >= endYear; year--) {
+            const option1 = document.createElement('option');
+            option1.value = year;
+            option1.textContent = year;
+            yearSelect.appendChild(option1);
+
+            const option2 = document.createElement('option');
+            option2.value = year;
+            option2.textContent = year;
+            yearSelect1.appendChild(option2);
+
+            const option3 = document.createElement('option');
+            option3.value = year;
+            option3.textContent = year;
+            startYearEdit.appendChild(option3);
+
+            const option4 = document.createElement('option');
+            option4.value = year;
+            option4.textContent = year;
+            endYearEdit.appendChild(option4);
+
+            const option5 = document.createElement('option');
+            option5.value = year;
+            option5.textContent = year;
+            startYearEducation.appendChild(option5);
+
+            const option6 = document.createElement('option');
+            option6.value = year;
+            option6.textContent = year;
+            endYearEducation.appendChild(option6);
+
+            const option7 = document.createElement('option');
+            option7.value = year;
+            option7.textContent = year;
+            startYearEducationEdit.appendChild(option7);
+
+            const option8 = document.createElement('option');
+            option8.value = year;
+            option8.textContent = year;
+            endYearEducationEdit.appendChild(option8);
+
+        }
+    }
+
+    // Get current year and generate options for the last 50 years
+    const currentYear = new Date().getFullYear();
+    generateYearOptions(currentYear, currentYear - 50);
+
+    //Add experience form functions
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('addExperienceForm');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            let currentRole = false;
+            const isChecked = document.getElementById('currentRoleCheckbox').checked;
+            if (isChecked) {
+                currentRole = true;
+            }
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            console.log("DATA", formData, data);
+            try {
+                const response = await fetch(`/user_profile/add-experience/<%= userId %>`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({data: data, currentRole: currentRole}),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    addExperienceToUI(result);
+                    console.log("ADDED EXPERIENCE", result);
+                    experiences.push(result);
+                    console.log('UPDATED EXPERIENCES', experiences);
+                    addListenerExperience(experiences);
+                    form.reset();
+                    const addExperienceModal = bootstrap.Modal.getInstance(document.getElementById('add-experience'));
+                    addExperienceModal.hide();
+
+                } else {
+                    const error = await response.text();
+                    alert(`Error: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error sending form data:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    function addExperienceToUI(exp) {
+        const container = document.querySelector('.experience-container');
+        const addExperienceButton = document.querySelector('.add-experience-btn');
+
+        const experienceHTML = `
+        <div class="experience-item" id="experience-${exp.id}">
+            <div class="experience-icon">
+                <img src="/images/briefcase-1024.png" alt="Briefcase Icon">
+            </div>
+            <div class="experience-details">
+                <h3 class="job-title">${exp.title}</h3>
+                <p class="organization">${exp.company_name} - ${exp.employment_name}</p>
+                <p class="duration">${exp.start_month} ${exp.start_year} -
+                    ${exp.end_month && exp.end_year ? `${exp.end_month} ${exp.end_year}` : 'present'}
+                </p>
+                <div class="experience-actions">
+                  <i class="fas fa-pen update-icon" data-bs-toggle="modal" data-bs-target="#update-experience" data-id="${exp.id}"></i>
+                  <i class="fas fa-trash delete-icon" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${exp.id}"></i>
+                </div>
+            </div>
+        </div>
+    `;
+
+        addExperienceButton.insertAdjacentHTML('beforebegin', experienceHTML);
+    }
+
+    //DELETE EXPERIENCE
+
+    let deleteId = null;
+
+    document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        deleteId = button.getAttribute('data-id');
+        console.log('ID for delete experience:', deleteId);
+    });
+
+    document.getElementById('deleteModalEducation').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        deleteId = button.getAttribute('data-id');
+        console.log('ID for delete education:', deleteId);
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', function () {
+        if (deleteId) {
+            console.log('Deleting post with ID:', deleteId);
+
+            const experienceDiv = $(`#experience-${deleteId}`);
+            $.ajax({
+                url: `/user_profile/delete-experience/${deleteId}`,
+                method: 'DELETE',
+                success: function (response) {
+                    if (response.success) {
+                        experienceDiv.fadeOut(300, function () {
+                            $(this).remove();
+                            let toastElement = new bootstrap.Toast(document.getElementById('toastNotification'));
+                            toastElement.show();
+                        });
+                    } else {
+                        alert('Error: Unable to delete experience.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+        modal.hide();
+    });
+
+
+    function addListenerExperience(experiences) {
+
+        document.querySelectorAll('.update-icon').forEach(button => {
+            button.addEventListener('click', function () {
+                const form = document.getElementById('editExperienceForm');
+                form.reset();
+                const experienceId = parseInt(this.getAttribute('data-id'));
+                console.log("ID EXPERIENCE - ", experienceId);
+
+                const submitButton = document.getElementById('edit-submit-btn');
+                submitButton.setAttribute('data-id', experienceId);
+                console.log(submitButton);
+
+                const experience = experiences.find(experience => experience.id === experienceId);
+
+                if (experience) {
+
+                    document.getElementById('exampleEditTitle').value = experience.title;
+                    document.getElementById('exampleEditEmploymentType').value = experience.employment_type_id;
+                    document.getElementById('exampleEditCompanyName').value = experience.company_name;
+
+                    const checkbox = document.getElementById('currentRoleCheckboxEdit');
+
+                    checkbox.checked = !!experience.still_works;
+                    document.getElementById('startDateEdit').value = experience.start_month;
+                    document.getElementById('yearSelectEdit').value = experience.start_year;
+                    document.getElementById('endMonthEdit').value = experience.end_month;
+                    document.getElementById('endYearEdit').value = experience.end_year;
+
+                    toggleEndDate();
+                    const editExperienceModal = new bootstrap.Modal(document.querySelector('.update-experience'), {});
+                    editExperienceModal.show();
+                } else {
+                    console.error(`Experience with ID ${experienceId} not found.`);
+                }
+            });
+        });
+    }
+
+    //UPDATE EXPERIENCE
+    document.addEventListener('DOMContentLoaded', function () {
+        const experienceElement = document.getElementById('experienceData');
+        experiences = JSON.parse(experienceElement.getAttribute('data-experience'));
+        console.log("EXPERIENCES", experiences);
+        addListenerExperience(experiences)
+    });
+
+
+    $('#edit-submit-btn').on('click', function (event) {
+        event.preventDefault();
+        console.log("EXPERIENCES", experiences);
+        const submitButton = document.getElementById('edit-submit-btn');
+        console.log(submitButton.getAttribute('data-id'));
+        const experienceId = parseInt(submitButton.getAttribute('data-id'));
+        const currentRole = $('#currentRoleCheckboxEdit').is(':checked');
+        const formData = JSON.stringify({
+            title: $('#exampleEditTitle').val(),
+            employment_type_id: $('#exampleEditEmploymentType').val(),
+            company_name: $('#exampleEditCompanyName').val(),
+            start_month: $('#startDateEdit').val(),
+            start_year: $('#yearSelectEdit').val(),
+            end_month: $('#endMonthEdit').val(),
+            end_year: $('#endYearEdit').val(),
+            current_role: $('#currentRoleCheckboxEdit').is(':checked')
+        });
+
+        $.ajax({
+            url: `/user_profile/edit-experience/${experienceId}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+
+                    const updatedExperience = {
+                        id: experienceId,
+                        title: $('#exampleEditTitle').val(),
+                        employment_type_id: $('#exampleEditEmploymentType').val(),
+                        company_name: $('#exampleEditCompanyName').val(),
+                        start_month: $('#startDateEdit').val(),
+                        start_year: $('#yearSelectEdit').val(),
+                        end_month: $('#endMonthEdit').val(),
+                        end_year: $('#endYearEdit').val(),
+                        still_works: currentRole
+                    };
+
+                    const experienceIndex = experiences.findIndex(event => event.id === experienceId);
+                    if (experienceIndex > -1) {
+                        console.log(experiences[experienceIndex]);
+                        experiences[experienceIndex] = updatedExperience;
+                        console.log(experiences[experienceIndex]);
+                        console.log(updatedExperience);
+                        console.log(experiences);
+                        addListenerExperience(experiences);
+                    }
+                    let employment_name;
+                    console.log(updatedExperience.employment_type_id);
+                    const employmentTypeId = parseInt(updatedExperience.employment_type_id, 10);
+                    switch (employmentTypeId) {
+                        case 1:
+                            employment_name = 'Full-time';
+                            break;
+                        case 2:
+                            employment_name = 'Part-time';
+                            break;
+                        case 3:
+                            employment_name = 'Self-employed';
+                            break;
+                        case 4:
+                            employment_name = 'Freelance';
+                            break;
+                        case 5:
+                            employment_name = 'Contract';
+                            break;
+                        case 6:
+                            employment_name = 'Internship';
+                            break;
+                        default:
+                            employment_name = 'Unknown';
+                            break;
+                    }
+                    console.log(employment_name);
+                    let endDateText;
+                    if (!updatedExperience.end_month && !updatedExperience.end_year) {
+                        endDateText = 'present';
+                    } else {
+                        endDateText = `${updatedExperience.end_month} ${updatedExperience.end_year}`;
+                    }
+
+                    const durationText = `${updatedExperience.start_month} ${updatedExperience.start_year} - ${endDateText}`;
+
+                    const experienceDiv = $(`#experience-${experienceId}`);
+
+                    experienceDiv.find('.job-title').text(updatedExperience.title);
+                    experienceDiv.find('.organization').text(`${updatedExperience.company_name} - ${employment_name}`);
+                    experienceDiv.find('.duration').text(durationText);
+
+                    document.getElementById('editExperienceForm').reset();
+                    const editExperienceModal = bootstrap.Modal.getInstance(document.querySelector('.update-experience'), {});
+                    editExperienceModal.hide();
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                } else {
+                    alert('There was a problem updating the event.');
+                }
+            },
+            error: function () {
+                alert('There was an error updating the event. Please try again.');
+            }
+        });
+    });
+
+
+    document.addEventListener('hidden.bs.modal', function () {
+
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    });
+
+
+    //ADD EDUCATION
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('addEducationForm');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`/user_profile/add-education/<%= userId %>`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    addEducationToUI(result);
+                    educations.push(result);
+                    educationListener(educations);
+                    form.reset();
+                    const addEducationModal = bootstrap.Modal.getInstance(document.getElementById('add-education'));
+                    addEducationModal.hide();
+                } else {
+                    const error = await response.text();
+                    alert(`Error: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error sending form data:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    function addEducationToUI(ed) {
+        const container = document.querySelector('.education-container');
+        const addExperienceButton = document.querySelector('.add-education-btn');
+
+        const educationHTML = `
+        <div class="experience-item" id="education-${ed.id}">
+            <div class="experience-icon">
+                <img src="/images/default-education.png" alt="Education Icon">
+            </div>
+            <div class="experience-details">
+                <h3 class="job-title">${ed.school}</h3>
+                <p class="duration">${ed.start_year} -
+                    ${ed.end_year ? `${ed.end_year}` : 'present'}
+                </p>
+                <div class="experience-actions">
+                  <i class="fas fa-pen update-icon-education" data-bs-toggle="modal" data-bs-target="#update-education" data-id="${ed.id}"></i>
+                  <i class="fas fa-trash delete-icon" data-bs-toggle="modal" data-bs-target="#deleteModalEducation" data-id="${ed.id}"></i>
+                </div>
+            </div>
+        </div>
+    `;
+
+        addExperienceButton.insertAdjacentHTML('beforebegin', educationHTML);
+    }
+
+    // Delete education
+    document.getElementById('confirmDeleteEducation').addEventListener('click', function () {
+        if (deleteId) {
+            console.log('Deleting post with ID:', deleteId);
+            const educationDiv = $(`#education-${deleteId}`);
+
+            $.ajax({
+                url: `/user_profile/delete-education/${deleteId}`,
+                method: 'DELETE',
+                success: function (response) {
+                    if (response.success) {
+                        educationDiv.fadeOut(300, function () {
+                            $(this).remove();
+                            let toastElement = new bootstrap.Toast(document.getElementById('toastNotification'));
+                            toastElement.show();
+                        });
+                    } else {
+                        alert('Error: Unable to delete experience.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModalEducation'));
+        modal.hide();
+    });
+
+
+    function educationListener(educations) {
+        document.querySelectorAll('.update-icon-education').forEach(button => {
+            button.addEventListener('click', function () {
+                const form = document.getElementById('EditEducationForm');
+                form.reset();
+                const educationId = parseInt(this.getAttribute('data-id'));
+                console.log("ID EDUCATION - ", educationId);
+                const submitButton = document.getElementById('edit-submit-btn-education');
+                submitButton.setAttribute('data-id', educationId);
+                console.log(submitButton);
+
+                const education = educations.find(edu => edu.id === educationId);
+                if (education) {
+                    document.getElementById('exampleEditSchool').value = education.school;
+                    document.getElementById('exampleEditDegree').value = education.degree;
+                    document.getElementById('exampleEditFieldOfStudy').value = education.field_of_study;
+
+                    document.getElementById('startDateEducationEdit').value = education.start_month;
+                    document.getElementById('yearSelectEducationEdit').value = education.start_year;
+                    document.getElementById('endMonthEducationEdit').value = education.end_month;
+                    document.getElementById('endYearEducationEdit').value = education.end_year;
+
+
+                    const editEducationModal = new bootstrap.Modal(document.querySelector('.update-education'), {});
+                    editEducationModal.show();
+                } else {
+                    console.error(`Education with ID ${educationId} not found.`);
+                }
+            });
+        });
+    }
+
+    //UPDATE Education
+    document.addEventListener('DOMContentLoaded', function () {
+        const experienceElement = document.getElementById('educationData');
+        educations = JSON.parse(experienceElement.getAttribute('data-education'));
+        educationListener(educations);
+    });
+
+
+    $('#edit-submit-btn-education').on('click', function (event) {
+        event.preventDefault();
+        const submitButton = document.getElementById('edit-submit-btn-education');
+        console.log(submitButton.getAttribute('data-id'));
+        const educationId = parseInt(submitButton.getAttribute('data-id'));
+        const formData = JSON.stringify({
+            school: $('#exampleEditSchool').val(),
+            degree: $('#exampleEditDegree').val(),
+            field_of_study: $('#exampleEditFieldOfStudy').val(),
+            start_month: $('#startDateEducationEdit').val(),
+            start_year: $('#yearSelectEducationEdit').val(),
+            end_month: $('#endMonthEducationEdit').val(),
+            end_year: $('#endYearEducationEdit').val(),
+        });
+
+        $.ajax({
+            url: `/user_profile/edit-education/${educationId}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+
+                    const updatedEducation = {
+                        id: educationId,
+                        school: $('#exampleEditSchool').val(),
+                        degree: $('#exampleEditDegree').val(),
+                        field_of_study: $('#exampleEditFieldOfStudy').val(),
+                        start_month: $('#startDateEducationEdit').val(),
+                        start_year: $('#yearSelectEducationEdit').val(),
+                        end_month: $('#endMonthEducationEdit').val(),
+                        end_year: $('#endYearEducationEdit').val(),
+                    };
+
+                    const experienceIndex = educations.findIndex(event => event.id === educationId);
+                    if (experienceIndex > -1) {
+                        console.log(educations[experienceIndex]);
+                        educations[experienceIndex] = updatedEducation;
+                        console.log(educations[experienceIndex]);
+                        console.log(updatedEducation);
+                        console.log(educations);
+                        educationListener(educations);
+                    }
+                    let endDateText;
+                    if (!updatedEducation.end_year) {
+                        endDateText = 'present';
+                    } else {
+                        endDateText = `${updatedEducation.end_year}`;
+                    }
+
+                    const durationText = `${updatedEducation.start_year} - ${endDateText}`;
+
+                    const educationDiv = $(`#education-${educationId}`);
+                    educationDiv.find('.job-title').text(updatedEducation.school);
+                    educationDiv.find('.duration').text(durationText);
+
+                    document.getElementById('EditEducationForm').reset();
+                    const updateEducationModal = bootstrap.Modal.getInstance(document.getElementById('update-education'));
+                    updateEducationModal.hide();
+
+                } else {
+                    alert('There was a problem updating education.');
+                }
+            },
+            error: function () {
+                alert('There was an error updating education. Please try again.');
+            }
+        });
+    });
+
+    //Add skills form functions
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('addSkillForm');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`/user_profile/add-skill/<%= userId %>`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    addSkillToUI(result);
+                    skills.push(result);
+                    console.log("UPDATED SKILLS", skills);
+                    skillsListener(skills);
+                    form.reset();
+                    const addSkillModal = bootstrap.Modal.getInstance(document.getElementById('add-skill'));
+                    addSkillModal.hide();
+
+                } else {
+                    const error = await response.text();
+                    alert(`Error: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error sending form data:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    function addSkillToUI(skill) {
+        const container = document.querySelector('.skills-container');
+        const addSkillButton = document.querySelector('.add-skills-btn');
+
+        const skillHTML = `
+        <div class="experience-item" id="skill-${skill.id}">
+            <div class="experience-details">
+                <h3 class="job-title">${skill.name}</h3>
+                <hr>
+                <div class="experience-actions">
+                  <i class="fas fa-pen update-icon-skill" data-bs-toggle="modal" data-bs-target="#update-skill" data-id="${skill.id}"></i>
+                  <i class="fas fa-trash delete-icon" data-bs-toggle="modal" data-bs-target="#deleteModalSkill" data-id="${skill.id}"></i>
+                </div>
+            </div>
+        </div>
+    `;
+
+        addSkillButton.insertAdjacentHTML('beforebegin', skillHTML);
+    }
+
+    //DELETE Skill
+
+    document.getElementById('deleteModalSkill').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        deleteId = button.getAttribute('data-id');
+        console.log('ID for deleting skill:', deleteId);
+    });
+
+
+    document.getElementById('confirmDeleteSkill').addEventListener('click', function () {
+        if (deleteId) {
+            console.log('Deleting post with ID:', deleteId);
+
+            const skillDiv = $(`#skill-${deleteId}`);
+            $.ajax({
+                url: `/user_profile/delete-skill/${deleteId}`,
+                method: 'DELETE',
+                success: function (response) {
+
+                    if (response.success) {
+                        skillDiv.fadeOut(300, function () {
+                            $(this).remove();
+                            let toastElement = new bootstrap.Toast(document.getElementById('toastNotification'));
+                            toastElement.show();
+                        });
+                    } else {
+                        alert('Error: Unable to delete skill.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModalSkill'));
+        modal.hide();
+    });
+
+
+    function skillsListener(skills_new) {
+        skills = skills_new;
+        console.log("SKILLS", skills);
+        document.querySelectorAll('.update-icon-skill').forEach(button => {
+            button.addEventListener('click', function () {
+                const form = document.getElementById('editSkillForm');
+                form.reset();
+                const skillId = parseInt(this.getAttribute('data-id'));
+                console.log("ID SKILL - ", skillId);
+                const submitButton = document.getElementById('edit-submit-btn-skill');
+                submitButton.setAttribute('data-id', skillId);
+                console.log(submitButton);
+
+                const skill = skills_new.find(sk => sk.id === skillId);
+                if (skill) {
+                    document.getElementById('exampleEditSkill').value = skill.name;
+
+                    const editSkillModal = new bootstrap.Modal(document.querySelector('.update-skill'), {});
+                    editSkillModal.show();
+                } else {
+                    console.error(`Skill with ID ${skillId} not found.`);
+                }
+            });
+        });
+    }
+
+    //UPDATE SKILLS
+    document.addEventListener('DOMContentLoaded', function () {
+        const experienceElement = document.getElementById('skillData');
+        skills = JSON.parse(experienceElement.getAttribute('data-skill'));
+        skillsListener(skills)
+
+    });
+
+
+    $('#edit-submit-btn-skill').on('click', function (event) {
+        event.preventDefault();
+        const submitButton = document.getElementById('edit-submit-btn-skill');
+        console.log(submitButton.getAttribute('data-id'));
+        const skillId = parseInt(submitButton.getAttribute('data-id'));
+        const formData = JSON.stringify({
+            skill: $('#exampleEditSkill').val(),
+        });
+
+        $.ajax({
+            url: `/user_profile/edit-skill/${skillId}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+
+                    const updatedSkill = {
+                        id: skillId,
+                        user_id: `<%= userId %>`,
+                        name: $('#exampleEditSkill').val()
+                    };
+
+                    const experienceIndex = skills.findIndex(event => event.id === skillId);
+                    console.log('INDEX', experienceIndex);
+                    console.log("SKILLS", skills);
+                    if (experienceIndex > -1) {
+                        console.log(skills[experienceIndex]);
+                        skills[experienceIndex] = updatedSkill;
+                        console.log(skills[experienceIndex]);
+                        console.log(updatedSkill);
+                        console.log(skills);
+                        skillsListener(skills);
+                    }
+
+                    const skillDiv = $(`#skill-${skillId}`);
+                    skillDiv.find('.job-title').text(updatedSkill.name);
+
+                    document.getElementById('editSkillForm').reset();
+                    const editSkills = bootstrap.Modal.getInstance(document.getElementById('update-skill'));
+                    editSkills.hide();
+                } else {
+                    alert('There was a problem updating skill.');
+                }
+            },
+            error: function () {
+                alert('There was an error updating skill. Please try again.');
+            }
+        });
+    });
+
+
+    //REVIEW AND RATING
+
+    $("#ratingForm").on("submit", function (event) {
+        event.preventDefault();
+        const form = $("#ratingForm");
+
+        const rating = $("#userRating").val()
+        const rating_int = parseInt(rating);
+        const comment = $("#userComment").val();
+        const adminId = form.attr("data-id");
+        const userId = form.attr("data-id2");
+
+
+        console.log("RATING", rating);
+        console.log("COMMENT", comment);
+        console.log("ADMINID", adminId);
+        console.log("USERID", userId);
+
+        $.ajax({
+            url: "/user_profile/rating",
+            type: "POST",
+            contentType: 'application/json',
+            data: JSON.stringify({rating: rating, feedback: comment, adminId: adminId, userId: userId}),
+            success: function (response) {
+                if (response.success) {
+                    const newCommentHTML = `
+          <div class="card mb-2">
+            <div class="card-body">
+              <p class="mb-1"><strong>${response.name} ${response.surname}</strong>
+                <span class="text-warning">
+                  ${'★'.repeat(rating_int)}${'☆'.repeat(5 - rating_int)}
+                </span>
+              </p>
+              <p class="mb-0">${comment}</p>
+            </div>
+          </div>
+        `;
+
+                    $("#averageRating").text(response.average_rating)
+
+                    $("#commentsSection h6").after(newCommentHTML);
+
+
+                    form[0].reset();
+                }
+            }
+        })
+
+    })
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <link rel='stylesheet' href='/stylesheets/calendar.css'/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Calendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My Job
+                            Postings</a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link" href="/user_profile/<%= user.id %>">
+                                <img src="<%= user.profile_picture %>" alt="Profile" class="profile-img">
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="min-height: 100vh;">
+    <div class="m-2">
+        <button type="button" class="btn btn-outline-dark" id="showForm">Create Event <i
+                    class="fa fa-plus-square-o"></i></button>
+    </div>
+    <div class="form-container" id="event-form">
+        <h2>Create Event</h2>
+        <form id="eventForm">
+            <div class="mb-3">
+                <label for="title" class="form-label">Event Title (required):</label>
+                <input type="text" class="form-control" id="title" name="title" required
+                       placeholder="Enter event title">
+            </div>
+            <div class="mb-3">
+                <label for="job" class="form-label">Job (optional):</label>
+                <select class="form-select" id="job" name="job" onchange="selectUsers(this)">
+                    <% jobs.forEach(job => { %>
+                    <option value="<%= job.id %>"><%= job.title %></option>
+                    <% }) %>
+                </select>
+                <small id="job" class="form-text text-muted">If you are scheduling and interview with a candidate please
+                    select job and candidate</small>
+            </div>
+            <div class="mb-3">
+                <label for="candidate" class="form-label">Candidate (optional):</label>
+                <select class="form-select" id="candidate" name="user_email">
+
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="start" class="form-label">Start Date & Time (required):</label>
+                <input type="datetime-local" class="form-control" id="start" name="start" required>
+            </div>
+            <div class="mb-3">
+                <label for="end" class="form-label">End Date & Time (optional):</label>
+                <input type="datetime-local" class="form-control" id="end" name="end">
+            </div>
+            <button type="submit" class="btn btn-outline-success">Add Event</button>
+        </form>
+    </div>
+    <div id='calendar'></div>
+</div>
+
+<!-- Delete event dialog -->
+<div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteEventModalLabel">Delete Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this event?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    const form = document.getElementById('event-form');
+    const submitButton = document.getElementById('showForm')
+
+    submitButton.addEventListener('click', function () {
+        form.classList.toggle('active')
+    })
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar')
+        let eventIdToDelete = null;
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            initialDate: Date.now(),
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            eventDidMount: function (info) {
+                info.el.setAttribute('data-description', info.event.extendedProps.description);
+            },
+            events: <%- events %>,
+            eventClick: function (info) {
+                eventIdToDelete = info.event.id;
+                const modal = new bootstrap.Modal(document.getElementById('deleteEventModal'));
+                modal.show();
+            }
+        })
+        calendar.render()
+
+        const eventForm = document.getElementById('eventForm');
+        eventForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+            const jobId = document.getElementById('job').value;
+            const user_email = document.getElementById('candidate').value;
+
+            const data = {
+                title: title,
+                start: start,
+                end: end || null,
+                jobId: jobId,
+                user_email: user_email
+            }
+            console.log(data);
+            const userId = parseInt(`<%= user.id %>`)
+            console.log(userId);
+            $.ajax({
+                url: `/calendar/add-event/${userId}`,
+                method: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+
+                        calendar.addEvent({
+                            title: title,
+                            start: start,
+                            end: end || null,
+                            description: title
+                        });
+
+                        eventForm.reset();
+                        form.classList.toggle('active');
+                    }
+                },
+                error: function (err) {
+                    console.error('There was an error inserting event. Please try again.' + err);
+                }
+            })
+        });
+
+        document.getElementById('confirmDelete').addEventListener('click', function () {
+            if (eventIdToDelete) {
+                $.ajax({
+                    url: `/calendar/delete-event/${eventIdToDelete}`,
+                    method: "DELETE",
+                    success: function (response) {
+                        if (response.success) {
+                            console.log("Event successfully deleted");
+                            const event = calendar.getEventById(eventIdToDelete);
+                            if (event) {
+                                event.remove();
+                            }
+                        }
+                    },
+                    error: function (err) {
+                        console.error("There was an error deleting the event", err);
+                    }
+                });
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteEventModal'));
+                modal.hide();
+            }
+        });
+    });
+
+    function selectUsers(selectedElement) {
+        const jobId = selectedElement.value;
+        console.log("JOB ID", jobId)
+        $.ajax({
+            url: `/calendar/get-users/${jobId}`,
+            method: "GET",
+            success: function (response) {
+                if (response.success) {
+                    const selectUser = document.getElementById("candidate");
+                    selectUser.innerHTML = '';
+                    if (response.users.length > 0) {
+                        response.users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.email;
+                            option.textContent = user.id + " " + user.name + " " + user.surname;
+                            selectUser.appendChild(option);
+                        })
+                    } else {
+                        selectUser.innerHTML = `<option value="">No candidates available</option>`
+                    }
+                }
+            },
+            error: function (error) {
+                console.log("Error while trying to get users", error)
+            }
+        })
+    }
+
+</script>
+
+
+</body>
+</html>

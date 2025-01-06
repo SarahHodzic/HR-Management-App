@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <link rel='stylesheet' href='/stylesheets/all_job_postings.css'/>
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My
+                                Job
+                                Postings</a>
+                        </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link" href="/user_profile/<%= user.id %>">
+                                <img src="<%= user.profile_picture %>" alt="Profile" class="profile-img">
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <!-- Filter, Sort, Search -->
+    <div class="container m-4">
+        <div class="row align-items-center">
+            <div class="col-auto m-1">
+                <label for="filtering" class="form-label mb-0">Filter by:</label>
+            </div>
+            <div class="col-auto m-1">
+                <select id="filtering" class="form-select" onchange="filter(this.value)" style="width: 200px;">
+                    <option selected value="1">Active Job Postings</option>
+                    <option value="2">Archived Job Postings</option>
+                </select>
+            </div>
+
+            <div class="col-auto m-1">
+                <label for="sort" class="form-label mb-0">Sort by:</label>
+            </div>
+            <div class="col-auto m-1">
+                <select id="sort" class="form-select" onchange="sort(this.value)" style="width: 200px;">
+                    <option selected value="1">Deadline Descending</option>
+                    <option value="2">Deadline Ascending</option>
+                    <option value="3">Created At Descending</option>
+                    <option value="4">Created At Ascending</option>
+                </select>
+            </div>
+            <div class="col-auto m-1">
+                <form class="d-flex me-auto mb-2 mb-lg-0 w-100" role="search" action="/all_job_postings/search"
+                      method="POST">
+                    <input class="form-control me-2 search-input-wide" type="search" name="searchTerm"
+                           placeholder="Search title, company, location, position..." aria-label="Search" required>
+                    <button class="btn btn-outline-warning" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-4" id="jobsHtml">
+
+    <% if (jobs.length === 0) { %>
+        <div class="no-events text-center">
+            <i class="bi bi-exclamation-circle no-events-icon"></i>
+            <p class="no-events-message">No job postings found</p>
+        </div>
+
+    <% }
+    else {
+    %>
+        <% jobs.forEach(job => { %>
+            <div class="card mb-3 p-3 shadow-sm"
+                 onclick="location.href='/contest/individual-job-posting/<%= job.id %>'">
+                <div class="row g-0 align-items-center">
+                    <div class="col-md-2 d-flex justify-content-center align-items-center">
+                        <img
+                                src="<%= job.company_image %>"
+                                alt="Company Logo"
+                                class="img-fluid rounded-circle"
+                                style="width: 100px; height: 100px; object-fit: cover;"
+                        />
+                    </div>
+
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1"><span class="text-primary"><%= job.title %></span></h5>
+                            <p class="mb-1">
+                                <i class="bi bi-person"></i> <strong><%= job.position_name %></strong>
+                            </p>
+                            <p class="mb-1"><strong><%= job.company_name %></strong></p>
+                            <p class="mb-1">
+                                <i class="bi bi-geo-alt-fill text-danger"></i> <%= job.location_name %>
+                            </p>
+                            <p class="mb-1">
+                                <i class="bi bi-calendar-event text-success"></i> <%= job.formattedDateDeadline %> <%= job.formattedTimeDeadline %>
+                            </p>
+                            <p class="mb-0">
+            <span class="badge <%= job.status === 1 ? 'bg-success' : 'bg-secondary' %>">
+              <%= job.status === 1 ? 'Active' : 'Archived' %>
+            </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <% })} %>
+</div>
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    function filter(selectedValue) {
+        console.log("SELECTED VALUE: ", selectedValue);
+        let jobsHtml = '';
+        $.ajax({
+            url: `/all_job_postings/filter/${selectedValue}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        jobsHtml = `
+                        <div class="no-events text-center">
+                            <i class="bi bi-exclamation-circle no-events-icon"></i>
+                            <p class="no-events-message">No job postings found</p>
+                        </div>
+                    `
+                    } else {
+
+                        (response.data).forEach(job => {
+                            jobsHtml += `<div class="card mb-3 p-3 shadow-sm" onclick="location.href='/contest/individual-job-posting/${job.id}'">
+              <div class="row g-0 align-items-center">
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                  <img
+                          src="${job.company_image}"
+                          alt="Company Logo"
+                          class="img-fluid rounded-circle"
+                          style="width: 100px; height: 100px; object-fit: cover;"
+                  />
+                </div>
+                <div class="col-md-10">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><span class="text-primary">${job.title}</span></h5>
+
+                    <p class="mb-1">
+                        <i class="bi bi-person"></i> <strong>${job.position_name}</strong>
+                    </p>
+                    <p class="mb-1"><strong>${job.company_name}</strong></p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-geo-alt-fill text-danger"></i>${job.location_name}
+                    </p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-calendar-event text-success"></i> ${job.formattedDateDeadline} ${job.formattedTimeDeadline}
+                    </p>
+
+                    <p class="mb-0">
+            <span class="badge ${job.status === 1 ? 'bg-success' : 'bg-secondary'}">
+              ${job.status === 1 ? 'Active' : 'Archived'}
+            </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>`
+                        })
+                    }
+                    $("#jobsHtml").html(jobsHtml);
+                }
+            },
+            error: function () {
+                console.log("Error while filtering data ")
+            }
+
+        })
+    }
+
+    function sort(selectedValue) {
+        console.log("SELECTED VALUE SORT: ", selectedValue);
+        let jobsHtml = '';
+        $.ajax({
+            url: `/all_job_postings/sort/${selectedValue}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        jobsHtml = `
+                        <div class="no-events text-center">
+                            <i class="bi bi-exclamation-circle no-events-icon"></i>
+                            <p class="no-events-message">No events found</p>
+                        </div>
+                    `
+                    } else {
+
+                        (response.data).forEach(job => {
+                            jobsHtml += `<div class="card mb-3 p-3 shadow-sm" onclick="location.href='/contest/individual-job-posting/${job.id}'">
+              <div class="row g-0 align-items-center">
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                  <img
+                          src="${job.company_image}"
+                          alt="Company Logo"
+                          class="img-fluid rounded-circle"
+                          style="width: 100px; height: 100px; object-fit: cover;"
+                  />
+                </div>
+                <div class="col-md-10">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1"><span class="text-primary">${job.title}</span></h5>
+
+                    <p class="mb-1">
+                        <i class="bi bi-person"></i> <strong>${job.position_name}</strong>
+                    </p>
+
+                    <p class="mb-1"><strong>${job.company_name}</strong></p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-geo-alt-fill text-danger"></i>${job.location_name}
+                    </p>
+
+                    <p class="mb-1">
+                      <i class="bi bi-calendar-event text-success"></i> ${job.formattedDateDeadline} ${job.formattedTimeDeadline}
+                    </p>
+
+                    <p class="mb-0">
+            <span class="badge ${job.status === 1 ? 'bg-success' : 'bg-secondary'}">
+              ${job.status === 1 ? 'Active' : 'Archived'}
+            </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>`
+                        })
+                    }
+                    $("#jobsHtml").html(jobsHtml);
+                }
+            },
+            error: function () {
+                console.log("Error while sorting data ")
+            }
+
+        })
+    }
+
+
+</script>
+
+
+</body>
+</html>

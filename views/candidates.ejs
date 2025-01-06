@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=kIDi0DHdQ1W0&format=png&color=000000"
+          type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/candidates.css'/>
+    <link rel='stylesheet' href='/stylesheets/footer-navbar.css'/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title><%= title %></title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="logo"><span class="hrw">HR</span>Works</div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <% if (!user.id) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-login" onclick="login()">Login</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/register">Sign up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" href="/chat/<%= user.id %>">Chat</a>
+                    </li>
+                    <% if (user.role === 1) { %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/admin_panel/<%= user.id %>">Admin Panel</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest">Create New Contest</a>
+                    </li>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-admin-panel" href="/contest/my-job-postings/<%= user.id %>">My Job
+                            Postings</a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item m-1 d-flex align-items-center">
+                        <a class="nav-link nav-link-signup" onclick="logout()">Logout</a>
+                    </li>
+                    <% if (user.role === 2) { %>
+                        <li class="nav-item m-1 d-flex align-items-center">
+                            <a class="nav-link nav-link-signup" href="/applications">Applications</a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="min-height: 100vh">
+    <div class="d-flex justify-content-end mb-2 mt-4">
+        <a href="/candidates/ranking/<%= job.id %>" class="btn nav-link-signup">Ranking and Reviews</a>
+    </div>
+    <h1 class="text-center mb-4 mt-4">Applications</h1>
+    <h4 class="text-center mb-4">Job title: <%= job.title %></h4>
+
+    <!-- Filter, Sort -->
+    <div class="container my-4">
+        <div class="container m-4">
+            <div class="row align-items-center" style="margin-left:3%;">
+                <div class="col-auto">
+                    <label for="filtering" class="form-label mb-0">Filter by application status:</label>
+                </div>
+                <div class="col-auto">
+                    <select id="filtering" class="form-select" onchange="filter(this.value,<%= job.id %>)"
+                            style="width: 200px;">
+                        <option value="">Select status</option>
+                        <% application_status.forEach(status => { %>
+                        <option value="<%= status.id %>"><%= status.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <label for="filtering_years" class="form-label mb-0">Filter by years of experience:</label>
+                </div>
+                <div class="col-auto">
+                    <select id="filtering_years" class="form-select" onchange="filter_year(this.value,<%= job.id %>)"
+                            style="width: 200px;">
+                        <option value="">Select experience</option>
+                        <option value="0">No experience</option>
+                        <option value="1">1+ year</option>
+                        <option value="3">3+ years</option>
+                        <option value="5">5+ years</option>
+                        <option value="10">10+ years</option>
+                        <option value="15">15+ years</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="container table-responsive" id="application_container">
+        <% if(applications.length === 0){ %>
+            <p class="text-center mb-4">No candidates applied for this job posting.</p>
+        <% } else { %>
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">PFP</th>
+                    <th scope="col">User Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Date Submitted</th>
+                    <th scope="col">Application Status</th>
+                    <th scope="col">Documents</th>
+                    <th scope="col">Chat</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% applications.forEach(application => { %>
+                    <tr id="row-<%= application.id %>">
+                        <td class="text-center">
+                            <img src="<%= application.user_profile_picture ? application.user_profile_picture : '/images/default-profile.jfif' %>"
+                                 alt="User profile image"
+                                 class="img-fluid rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+
+                        </td>
+                        <td>
+                            <%= application.user_id %>
+                        </td>
+                        <td>
+                            <a href="/user_profile/<%= application.user_id %>">
+                                <%= application.user_name %> <%= application.user_surname %>
+                            </a>
+                        </td>
+                        <td>
+                            <%= application.user_email %>
+                        </td>
+                        <td><%= application.formattedDateDeadline %></td>
+                        <td>
+                            <select class="form-select status-select <%= application.status_name %>"
+                                    data-application-id="<%= application.id %>" id="<%= application.id %>"
+                                    onchange="updateStatus(this,`<%= application.status_name %>`,`<%= application.user_id %>`,`<%= application.user_email %>`,`<%= job.title %>`)">
+                                <option value="1" <%= application.status_id === 1 ? 'selected' : '' %>>Applied</option>
+                                <option value="2" <%= application.status_id === 2 ? 'selected' : '' %>>Reviewed</option>
+                                <option value="3" <%= application.status_id === 3 ? 'selected' : '' %>>Interview
+                                </option>
+                                <option value="4" <%= application.status_id === 4 ? 'selected' : '' %>>Rejected</option>
+                                <option value="5" <%= application.status_id === 5 ? 'selected' : '' %>>Shortlisted
+                                </option>
+                                <option value="6" <%= application.status_id === 6 ? 'selected' : '' %>>Approved</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary"
+                                    onclick="window.location.href='/documents/<%= application.id %>'">Documents
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-success"
+                                    onclick="window.location.href='/chat/admin/<%= user.id %>/<%= application.user_id %>'">
+                                Message
+                            </button>
+                        </td>
+                    </tr>
+                <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <div class="m-2">
+        <button type="button" class="btn btn-outline-dark" id="showForm">Send Emails <i class="fa fa-envelope-o"
+                                                                                        aria-hidden="true"></i></button>
+    </div>
+    <div class="form-container" id="email-form">
+        <h2>Send Email</h2>
+        <form id="emailForm">
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter email subject"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="recipient" class="form-label">Select Candidate</label>
+                <select class="form-select" id="recipient" name="recipients[]" multiple required>
+                    <% applications.forEach(application => { %>
+                    <option value="<%= application.user_email %>"><%= application.user_name %> <%= application.user_surname %></option>
+                    <% }) %>
+                </select>
+                <small class="form-text text-muted">Hold down the Ctrl (Windows) or Command (Mac) key to select multiple
+                    candidates.</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="body" class="form-label">Email Body</label>
+                <textarea class="form-control" id="body" name="body" rows="5" placeholder="Enter the body of the email"
+                          required></textarea>
+            </div>
+            <button type="submit" class="btn btn-outline-success">Send Email</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap Toast for notifications -->
+    <div class="toast position-fixed top-0 end-0 p-3 mt-3 me-3" id="toastNotification" role="alert"
+         aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Email sent successfully!
+        </div>
+    </div>
+
+
+</div>
+
+
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About HRWorks</h5>
+                <p>
+                    Empowering HR professionals with tools for seamless recruitment and employee management, bridging
+                    the gap between talent and opportunity.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h5>Follow Us</h5>
+                <a href="#" class="social-icon"><img src="/images/facebook-icon.png" alt="Facebook"/></a>
+                <a href="#" class="social-icon"><img src="/images/x-icon.png" alt="X"/></a>
+                <a href="#" class="social-icon"><img src="/images/instagram-icon.png" alt="Instagram"/></a>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5>Contact Us</h5>
+                <p>Email: <a href="mailto:support@HRWorks.com">support@HRWorks.com</a></p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>&copy; 2024 HRWorks. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+    function login() {
+        location.href = '/login';
+    }
+
+    function logout() {
+        location.href = '/login/logout'
+    }
+
+    const userId = `<%= JSON.stringify(user.id) %>`;
+    let socket = io();
+    socket.emit('register', userId);
+
+    function updateStatus(selectElement, status_name, user_id, user_email, job_title) {
+        const applicationId = selectElement.getAttribute('data-application-id');
+        const newStatus = selectElement.value;
+
+        socket.emit("status change", {newStatus, user_id, applicationId});
+
+        fetch(`/candidates/update-status/${applicationId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({status: newStatus, user_id: user_id, user_email: user_email, job_title: job_title}),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                let color;
+                switch (newStatus) {
+                    case "1":
+                        color = 'applied';
+                        break;
+                    case "2":
+                        color = 'reviewed';
+                        break;
+                    case "3":
+                        color = 'interview';
+                        break;
+                    case "4":
+                        color = 'rejected';
+                        break;
+                    case "5":
+                        color = 'shortlisted';
+                        break;
+                    case "6":
+                        color = 'approved';
+                        break;
+                }
+                console.log(applicationId)
+                console.log(newStatus);
+                console.log(status_name);
+                console.log(color);
+                const el = document.getElementById(applicationId);
+
+                el.classList.toggle(status_name);
+                el.classList.add(color);
+                el.setAttribute('class', `form-select status-select ${color}`);
+                if (el.classList.contains(status_name)) {
+                    console.log(`The select element has the class ${status_name}`);
+                }
+                status_name = color;
+                return response.json();
+            })
+            .then(data => {
+                console.log('Status updated successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+            });
+    }
+
+    const form = document.getElementById('email-form');
+    const submitButton = document.getElementById('showForm')
+
+    submitButton.addEventListener('click', function () {
+        form.classList.toggle('active')
+    })
+
+    const emailForm = document.getElementById('emailForm');
+    emailForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const subject = document.getElementById('subject').value;
+        const recipient = Array.from(document.getElementById('recipient').selectedOptions).map(option => option.value);
+        const body = document.getElementById('body').value;
+
+        const data = {
+            subject: subject,
+            recipient: recipient,
+            body: body,
+            adminEmail: `<%= user.email %>`
+        }
+        console.log(data);
+
+        $.ajax({
+            url: `/candidates/send-email`,
+            method: "POST",
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (response) {
+                if (response.success) {
+                    let toastElement = new bootstrap.Toast(document.getElementById('toastNotification'));
+                    toastElement.show();
+
+                    emailForm.reset();
+                    form.classList.toggle('active');
+                }
+            },
+            error: function (err) {
+                console.error('There was an error sending email. Please try again.' + err);
+            }
+        })
+    });
+
+
+    function filter(selectedValue, jobId) {
+        console.log("SELECTED VALUE: ", selectedValue);
+        console.log("JOB ID", jobId)
+        let application_container = '';
+        $.ajax({
+            url: `/candidates/filter/${selectedValue}/${jobId}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        application_container = `
+                        <p class="text-center mb-4">No candidates with that status found.</p>
+                    `
+                    } else {
+                        application_container += `<table class="table table-bordered table-hover">
+                                         <thead class="thead-dark">
+                                          <tr>
+                                            <th scope="col">PFP</th>
+                                            <th scope="col">User Id</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Email</th>
+                                            <th scope="col">Date Submitted</th>
+                                            <th scope="col">Application Status</th>
+                                            <th scope="col">Documents</th>
+                                            <th scope="col">Chat</th>
+                                          </tr>
+                                          </thead>
+                                          <tbody>`;
+
+                        (response.data).forEach(application => {
+                            console.log(application);
+                            application_container += `<tr id="row-${application.id}">
+          <td class="text-center">
+            <img src="${application.user_profile_picture ? application.user_profile_picture : '/images/default-profile.jfif'}"
+                 alt="User profile image"
+                 class="img-fluid rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+
+          </td>
+          <td>
+            ${application.user_id}
+          </td>
+          <td>
+            <a href="/user_profile/${application.user_id}">
+              ${application.user_name} ${application.user_surname}
+            </a>
+          </td>
+          <td>
+            ${application.user_email}
+          </td>
+          <td>${application.formattedDateDeadline}</td>
+          <td>
+            <select class="form-select status-select ${application.status_name}" data-application-id="${application.id}" id="${application.id}" onchange="updateStatus(this,'${application.status_name}',${application.user_id},'${application.user_email}','${response.job.title}')" >
+              <option value="1" ${application.status_id === 1 ? 'selected' : ''}>Applied</option>
+              <option value="2" ${application.status_id === 2 ? 'selected' : ''}>Reviewed</option>
+              <option value="3" ${application.status_id === 3 ? 'selected' : ''}>Interview</option>
+              <option value="4" ${application.status_id === 4 ? 'selected' : ''}>Rejected</option>
+              <option value="5" ${application.status_id === 5 ? 'selected' : ''}>Shortlisted</option>
+              <option value="6" ${application.status_id === 6 ? 'selected' : ''}>Approved</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-primary"  onclick="window.location.href='/documents/${application.id}'">Documents</button>
+          </td>
+          <td>
+            <button class="btn btn-success" onclick="window.location.href='/chat/admin/${response.user.id}/${application.user_id}'">Message</button>
+          </td>
+        </tr>`;
+                        })
+                        application_container += `</tbody>
+        </table>`;
+                    }
+                    $("#application_container").html(application_container);
+                }
+            },
+            error: function () {
+                console.log("Error while filtering data ")
+            }
+
+        })
+    }
+
+    function filter_year(selectedValue, jobId) {
+        console.log("SELECTED VALUE: ", selectedValue);
+        console.log("JOB ID", jobId)
+        let application_container = '';
+        $.ajax({
+            url: `/candidates/filter_year/${selectedValue}/${jobId}`,
+            type: "GET",
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        application_container = `
+                        <p class="text-center mb-4">No candidates with that many years of experience.</p>
+                    `
+                    } else {
+                        application_container += `<table class="table table-bordered table-hover">
+                                         <thead class="thead-dark">
+                                          <tr>
+                                            <th scope="col">PFP</th>
+                                            <th scope="col">User Id</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Email</th>
+                                            <th scope="col">Date Submitted</th>
+                                            <th scope="col">Application Status</th>
+                                            <th scope="col">Documents</th>
+                                            <th scope="col">Chat</th>
+                                          </tr>
+                                          </thead>
+                                          <tbody>`;
+
+                        (response.data).forEach(application => {
+                            console.log(application);
+                            application_container += `<tr id="row-${application.id}">
+          <td class="text-center">
+            <img src="${application.user_profile_picture ? application.user_profile_picture : '/images/default-profile.jfif'}"
+                 alt="User profile image"
+                 class="img-fluid rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+
+          </td>
+          <td>
+            ${application.user_id}
+          </td>
+          <td>
+            <a href="/user_profile/${application.user_id}">
+              ${application.user_name} ${application.user_surname}
+            </a>
+          </td>
+          <td>
+            ${application.user_email}
+          </td>
+          <td>${application.formattedDateDeadline}</td>
+          <td>
+            <select class="form-select status-select ${application.status_name}" data-application-id="${application.id}" id="${application.id}" onchange="updateStatus(this,'${application.status_name}',${application.user_id},'${application.user_email}','${response.job.title}')" >
+              <option value="1" ${application.status_id === 1 ? 'selected' : ''}>Applied</option>
+              <option value="2" ${application.status_id === 2 ? 'selected' : ''}>Reviewed</option>
+              <option value="3" ${application.status_id === 3 ? 'selected' : ''}>Interview</option>
+              <option value="4" ${application.status_id === 4 ? 'selected' : ''}>Rejected</option>
+              <option value="5" ${application.status_id === 5 ? 'selected' : ''}>Shortlisted</option>
+              <option value="6" ${application.status_id === 6 ? 'selected' : ''}>Approved</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-primary"  onclick="window.location.href='/documents/${application.id}'">Documents</button>
+          </td>
+          <td>
+            <button class="btn btn-success" onclick="window.location.href='/chat/admin/${response.user.id}/${application.user_id}'">Message</button>
+          </td>
+        </tr>`;
+                        })
+                        application_container += `</tbody>
+        </table>`;
+                    }
+                    $("#application_container").html(application_container);
+                }
+            },
+            error: function () {
+                console.log("Error while filtering data ")
+            }
+
+        })
+    }
+
+
+</script>
+
+
+</body>
+</html>

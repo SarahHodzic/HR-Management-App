@@ -1,0 +1,59 @@
+.status-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.status-active {
+    background-color: rgba(76, 175, 80, 0.8);
+}
+
+.status-inactive {
+    background-color: rgba(244, 67, 54, 0.8);
+}
+
+.card-img-top {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+.custom-hr {
+    width: 50%;
+    margin: 2% auto;
+    border: 1px solid #ccc;
+}
+
+.custom-title {
+    background-color: #f8f9fa;
+    color: #FF7F50;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    position: relative;
+}
+.card {
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+}
+.custom-title::after {
+    content: "";
+    width: 50px;
+    height: 3px;
+    background-color: #FF7F50;
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}

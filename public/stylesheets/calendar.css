@@ -1,0 +1,40 @@
+#calendar {
+    margin: 2rem;
+}
+
+.form-container h2 {
+    margin-bottom: 10px;
+}
+
+.form-container {
+    margin: 2rem;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.active {
+    opacity: 1;
+    max-height: 100vh;
+    margin-bottom: 100px;
+}
+
+.fc-event:hover {
+    cursor: pointer;
+}
+
+.fc-event:hover::after {
+    content: attr(data-description);
+    position: absolute;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    transform: translateY(-100%);
+    margin-top: -5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,34 @@
+
+.applied {
+    background-color: #f0f4f8;
+    color: #333333;
+}
+
+.reviewed {
+    background-color: #ffeeba;
+    color: #856404;
+}
+
+.interview {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.shortlisted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.approved {
+    background-color: #c3e6cb;
+    color: #155724;
+}
+
+a {
+    color: black;
+}
