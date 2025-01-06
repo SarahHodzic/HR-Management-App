@@ -74,12 +74,9 @@ app.use('/register', registerRouter);
 app.use('/individual-job-posting', individualJobPostingRouter);
 
 app.use((req, res, next) => {
-    // Provera autorizacije
     if (!req.session.userId) {
-        // Ako korisnik nije autorizovan, preusmeravanje na stranicu za login
         return res.redirect('/');
     }
-    // Ako je korisnik autorizovan, prosleđivanje zahteva dalje
     next();
 });
 
@@ -103,12 +100,9 @@ app.use('/user_profile', userProfileRouter);
 app.use('/chat', chatRouter);
 //Only logged-in users that are not admins can access
 app.use((req, res, next) => {
-    // Provera autorizacije
     if (!req.session.userId && req.session.userRole === 1) {
-        // Ako korisnik nije autorizovan, preusmeravanje na stranicu za login
         return res.redirect('/');
     }
-    // Ako je korisnik autorizovan, prosleđivanje zahteva dalje
     next();
 });
 
